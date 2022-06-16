@@ -164,7 +164,7 @@
             
 
             //For loop to assess if current location is within outer geofence.  geof_out = outer geofence
-            const outerbufferList = [bt_geof_out, eb_geof_out]; 
+            const outerbufferList = [bt_geof_out, eb_geof_out, ab_geof_out, bc_geof_out, de_geof_out]; 
             const outerPopups = [bt_popup3, eb_popup3];  
             // 'i' is for index. Meaning that for index 0 (when we start to iterrate) when i is smaller than length, i++ is probably go one by one
             for ( let i=0; i<outerbufferList.length; i++) {
@@ -180,7 +180,7 @@
             }
 
             //For loop to assess if current location is within middle geofence
-            const midbufferList = [bt_geof_mid, eb_geof_mid];
+            const midbufferList = [bt_geof_mid, eb_geof_mid, ab_geof_mid, bc_geof_mid, de_geof_mid];
             const midPopups = [bt_popup2, eb_popup2]; 
 
             for ( let i=0; i<midbufferList.length; i++) {
@@ -195,7 +195,7 @@
             }
             
             //For loop to assess if current location is within inner geofence.   geof = geofence; in = inner
-            const innerbufferList = [bt_geof_in,eb_geof_in];
+            const innerbufferList = [bt_geof_in,eb_geof_in, ab_geof_in, bc_geof_in, de_geof_in];
             const innerPopups = [bt_popup1, eb_popup1];
             const popup_audio = []   
 
@@ -303,6 +303,36 @@
         });
         eb.off('click'); 
 
+
+                //Site three //oak
+        const ab_dot  = turf.point([-2.235575,53.468177]);      // campus store   
+        const ab_geof_in = turf.buffer(ab_dot, 0.02, {units:'kilometers',steps:24});
+        const ab_geof_mid = turf.buffer(ab_dot, 0.05, {units:'kilometers', steps:24});   
+        const ab_geof_out = turf.buffer(ab_dot, 0.1,{units: 'kilometers',steps:24});    
+        var ab = L.marker([53.468177,-2.235575]).bindPopup("Oak Street Invader");   //, {icon:oak}   .addTo(map)
+        L.geoJSON(ab_geof_in,{style: innerStyle}).addTo(map);
+        L.geoJSON(ab_geof_mid, {style: midStyle}).addTo(map); 										
+        L.geoJSON(ab_geof_out,{style: outerStyle}).addTo(map);
+
+                //Site four //oak
+        const bc_dot  = turf.point([-2.235645,53.467270]);      // campus park   
+        const bc_geof_in = turf.buffer(bc_dot, 0.02, {units:'kilometers',steps:24});
+        const bc_geof_mid = turf.buffer(bc_dot, 0.05, {units:'kilometers', steps:24});   
+        const bc_geof_out = turf.buffer(bc_dot, 0.1,{units: 'kilometers',steps:24});    
+        var bc = L.marker([53.467270,-2.235645]).bindPopup("Oak Street Invader");   //, {icon:oak}   .addTo(map)
+        L.geoJSON(bc_geof_in,{style: innerStyle}).addTo(map);
+        L.geoJSON(bc_geof_mid, {style: midStyle}).addTo(map); 										
+        L.geoJSON(bc_geof_out,{style: outerStyle}).addTo(map);
+
+                //Site five //oak
+        const de_dot  = turf.point([-2.235983,53.466647]);      // near ALB building   
+        const de_geof_in = turf.buffer(de_dot, 0.02, {units:'kilometers',steps:24});
+        const de_geof_mid = turf.buffer(de_dot, 0.05, {units:'kilometers', steps:24});   
+        const de_geof_out = turf.buffer(de_dot, 0.1,{units: 'kilometers',steps:24});    
+        var de = L.marker([53.466647,-2.235983]).bindPopup("Oak Street Invader");   //, {icon:oak}   .addTo(map)
+        L.geoJSON(de_geof_in,{style: innerStyle}).addTo(map);
+        L.geoJSON(de_geof_mid, {style: midStyle}).addTo(map); 										
+        L.geoJSON(de_geof_out,{style: outerStyle}).addTo(map);
 
 
 
