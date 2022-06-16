@@ -238,16 +238,16 @@
         
 
         //Site one  //backTurner bt_dot = centre point of all geofences for the Back Turner
-        const bt_dot  = turf.point([-2.225488,53.467251]);    // Oregon Close Street near the camp        
+        const bt_dot  = turf.point([-2.234910,53.470444]);    // Oregon Close Street near the camp        
         const bt_geof_in = turf.buffer(bt_dot, 0.02, {units:'kilometers',steps:24}); 
-        const bt_geof_mid = turf.buffer(bt_dot, 0.1, {units:'kilometers', steps:24}); 
-        const bt_geof_out = turf.buffer(bt_dot, 0.2,{units: 'kilometers',steps:24});
+        const bt_geof_mid = turf.buffer(bt_dot, 0.05, {units:'kilometers', steps:24}); 
+        const bt_geof_out = turf.buffer(bt_dot, 0.1,{units: 'kilometers',steps:24});
             
         L.geoJSON(bt_geof_in,{style: innerStyle}).addTo(map); 
         L.geoJSON(bt_geof_mid, {style: midStyle}).addTo(map); 										
         L.geoJSON(bt_geof_out,{style: outerStyle}).addTo(map);	
 
-        const bt = L.marker([53.467251,-2.225488]).bindPopup("Back Turner Invader"); // {icon:backTurner} .addTo(map)   
+        const bt = L.marker([53.470444,-2.234910]).bindPopup("Back Turner Invader"); // {icon:backTurner} .addTo(map)   
 
         // Inner geofence
         const bt_popupContent1 = ("<h1 style ='text-align:center; color: #263985'> Well done! You found Back Turner Invader!</h1><b> Please click on your music icon to listen to a story </b>")   //Add content using HTML tags 
@@ -274,11 +274,11 @@
 
 
         //Site two //oak
-        const eb_dot  = turf.point([-2.234008,53.469546]);      // Engineering building    (eb = engineering building)   
+        const eb_dot  = turf.point([-2.234105,53.469588]);      // Engineering building    (eb = engineering building)   
         const eb_geof_in = turf.buffer(eb_dot, 0.02, {units:'kilometers',steps:24});
-        const eb_geof_mid = turf.buffer(eb_dot, 0.1, {units:'kilometers', steps:24});   
-        const eb_geof_out = turf.buffer(eb_dot, 0.2,{units: 'kilometers',steps:24});    
-        var eb = L.marker([53.469546,-2.234008]).bindPopup("Oak Street Invader");   //, {icon:oak}   .addTo(map)
+        const eb_geof_mid = turf.buffer(eb_dot, 0.05, {units:'kilometers', steps:24});   
+        const eb_geof_out = turf.buffer(eb_dot, 0.1,{units: 'kilometers',steps:24});    
+        var eb = L.marker([53.469588,-2.234105]).bindPopup("Oak Street Invader");   //, {icon:oak}   .addTo(map)
         L.geoJSON(eb_geof_in,{style: innerStyle}).addTo(map);
         L.geoJSON(eb_geof_mid, {style: midStyle}).addTo(map); 										
         L.geoJSON(eb_geof_out,{style: outerStyle}).addTo(map);				 
