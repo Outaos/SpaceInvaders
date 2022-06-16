@@ -172,7 +172,7 @@
                     // loc.outerPopups[i].bindPopup().openPopup();
                      outerPopups[i].openPopup();
                      // create marker object, pass custom icon as option, pass content and options to popup, add to map
-                        L.marker(e.latlng, {icon: playerIcon}).addTo(map); 
+                        //L.marker(e.latlng, {icon: playerIcon}).addTo(map); 
                         L.geoJSON(outerbufferList[i], {style: enterstyleOut}).addTo(map);
                 } else {
                     loc.bindPopup("<strong>You are here.</strong><br />Keep exploring!.", {maxWidth: 500});
@@ -187,7 +187,7 @@
                 if (turf.booleanWithin(player, midbufferList[i])) {
                     midPopups[i].openPopup();
                         // create marker object, pass custom icon as option, pass content and options to popup, add to map
-                        L.marker(e.latlng, {icon: playerIcon}).addTo(map); 
+                        //L.marker(e.latlng, {icon: playerIcon}).addTo(map); 
                         L.geoJSON(midbufferList[i], {style: enterstyleMid}).addTo(map);
                 } else {
                     loc.bindPopup("<strong>You are here.</strong><br />Keep exploring!.", {maxWidth: 500});
