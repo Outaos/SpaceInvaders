@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>A location-based game to rediscover your city</title>              
+	
+		<!-- Leafet CSS -->
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"/> 
+        <!--Leaflet js -->    
+		<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>   
+		
+        <!-- Turf js -->
+		<script src='https://unpkg.com/@turf/turf@6.3.0/turf.min.js'></script>    
+
+		<!-- jquery-->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+
+        <!-- Delete @[VERSION] to allow the download of the latest version-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+        <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+		
+        <!-- Set size to fit mobile browser -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />   
+
+
+		<style>
+			 /* set the size web page to full size */
+			html, body {
+				padding:0;
+				margin: 0;
+				width: 100%;
+				height: 100%;
+			}
+			/* set the size of the map */
+			#map {
+				width: 100%;
+				height: 85%;
+			}
+
+			/* Button style */
+			button {
+				background: #0084ff;
+				border: none;
+				border-radius: 5px;
+				padding: 8px 14px;
+				font-size: 15px;
+				color: #fff;
+			}
+
+			#banner-message.alt {
+				background: #0084ff;
+				color: #fff;
+				margin-top: 40px;
+				width: 200px;
+			}
+
+			#banner-message.alt button {
+				background: #fff;
+				color: #000;
+			}
+		</style>
+	</head>
+
+
+    <!-- Set background colour --> 
+    <body style="background-color: #061529">   <!--#467984-->
+
+        <h1 style= 'font-size: 40px; font-family: Times New Roman; color:white; text-align:left; margin-bottom: -10px; margin-left:10px; text-shadow: 2px 2px whitesmoke'> Man_stories. A location-based game to rediscover Manchester </h1>                          
+        
+        <!-- Initialise the map-->
+		<div id='map'></div>
+
+		<script>
+
+        // Set location variable to 'null' to account for no info when user just enters the game
+        let loc = null;          
+                    
+        //Alert shown when webpage is opened
+        alert("Welcome to Man_stories!\n\n\This game aims to help you explore the city by searching for hidden multimedia stories in the real-world urban environment. To continue please enable location on your device.\n\nFurther instructions are in the menu.\n\n Have fun!");      
+
+
+        // Style for geofences
+        const outerStyle = {      
+            "color": "#2E86C1",
+            "weight": 2,       //2
+            "fillOpacity": 0.0   //0.1
+        };
+
+        const midStyle = {
+            "color": "#2E86C1",
+            "weight": 2,
+            "fillOpacity": 0.0
+        };
+
+        const innerStyle = {
+            "color": "#2E86C1", 
+            "weight": 2, 
+            "fillOpacity":0.0   //0.4 
+        };
+
+        const enterstyleIn = { 
+            "color": "black",   // dark blue
+            "weight": 3,
+            "fillOpacity": 0.6
+        };
+
+        const enterstyleMid = { 
+            "color": "#2E86C1",   // blue
+            "weight": 3,
+            "fillOpacity": 0.3
+        };
+
+        const enterstyleOut = { 
+            "color": "red",   // light blue
+            "weight": 3,
+            "fillOpacity": 0.1
+        };
+
+
+        // Create map  
+        const map = L.map('map');
+        const mapCentre = L.latLng(53.4808,-2.2426);
+        map.setView(mapCentre,13);
+        // Change tiles to make the map sexier
+        const Stamen_Terrain = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}', {
+            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            subdomains: 'abcd',
+            minZoom: 0,
+            maxZoom: 18,
+            ext: 'png'
+        });
+        Stamen_Terrain.addTo(map)
+
+
+        // Leaflet function that tracks player's geolocation
+        map.locate({setView: true, maxZoom: 14, watch: true, enableHighAccuracy: true});   
+
+
+        //********************
+        //GEOLOCATION FUNCTION 
+        function onLocationFound(e) { 
+
+            
+            // This is the point that is getting tracked, but I do not add it to the map. 
+            // Ask Abi what is the difference between 'player' and 'loc' 
+            player = turf.point([e.latlng.lng, e.latlng.lat]);		 	 
+            // Geolocation icon
+            const playerIcon = L.icon({     
+                iconUrl: 'placeholder.png',   // person, walk
+                iconSize: [37,37],    
+                iconAnchor: [17, 37],  
+                popupAnchor: [0,-37],
+            })
+            console.log("Your current position is at:" +e.latlng);  
+            // This account for the geolocation when the user just opens the game
+            // I add this marker to the map
+            if (loc == null) {                        
+                loc = L.marker(e.latlng, {icon:playerIcon}).addTo(map);
+            // Update the geolocation when the current location is known
+            } else { 
+                loc.setLatLng(e.latlng); 
+            }
+
+            
+
+            //For loop to assess if current location is within outer geofence.  geof_out = outer geofence
+            const outerbufferList = [bt_geof_out, eb_geof_out]; 
+            const outerPopups = [bt_popup3, eb_popup3];  
+            // 'i' is for index. Meaning that for index 0 (when we start to iterrate) when i is smaller than length, i++ is probably go one by one
+            for ( let i=0; i<outerbufferList.length; i++) {
+                if (turf.booleanWithin(player, outerbufferList[i])) {
+                    // loc.outerPopups[i].bindPopup().openPopup();
+                     outerPopups[i].openPopup();
+                     // create marker object, pass custom icon as option, pass content and options to popup, add to map
+                        L.marker(e.latlng, {icon: walk}).addTo(map); 
+                        L.geoJSON(outerbufferList[i], {style: enterstyleOut}).addTo(map);
+                } else {
+                    loc.bindPopup("<strong>You are here.</strong><br />Keep exploring!.", {maxWidth: 500});
+                }
+            }
+
+            //For loop to assess if current location is within middle geofence
+            const midbufferList = [bt_geof_mid, eb_geof_mid];
+            const midPopups = [bt_popup2, eb_popup2]; 
+
+            for ( let i=0; i<midbufferList.length; i++) {
+                if (turf.booleanWithin(player, midbufferList[i])) {
+                    midPopups[i].openPopup();
+                        // create marker object, pass custom icon as option, pass content and options to popup, add to map
+                        L.marker(e.latlng, {icon: funny}).addTo(map); 
+                        L.geoJSON(midbufferList[i], {style: enterstyleMid}).addTo(map);
+                } else {
+                    loc.bindPopup("<strong>You are here.</strong><br />Keep exploring!.", {maxWidth: 500});
+                }
+            }
+            
+            //For loop to assess if current location is within inner geofence.   geof = geofence; in = inner
+            const innerbufferList = [bt_geof_in,eb_geof_in];
+            const innerPopups = [bt_popup1, eb_popup1];
+            const popup_audio = []   
+
+            for ( let i = 0; i < innerbufferList.length; i++) {       
+                if (turf.booleanWithin(player, innerbufferList[i])) {					
+                    innerPopups[i].openPopup();
+                            // create marker object, pass custom icon as option, pass content and options to popup, add to map
+                            L.marker(e.latlng, {icon: audioIcon}).bindPopup(customPopup, customOptions).addTo(map);       
+                            L.geoJSON(innerbufferList[i], {style:enterstyleIn}).addTo(map); 			
+                }  else {
+                    loc.bindPopup("<strong>You are here.</strong><br />Keep exploring!.", {maxWidth: 500});
+                }
+            } 
+        }
+
+        const funny = L.icon({
+            iconUrl: "http://grzegorztomicki.pl/serwisy/pin.png",
+            iconSize: [50, 58], // size of the icon
+            iconAnchor: [20, 58], // changed marker icon position
+            popupAnchor: [0, -60], // changed popup position
+          });
+
+        const walk = L.icon({
+            iconUrl: "walk.png",
+            iconSize: [50, 58], // size of the icon
+            iconAnchor: [20, 58], // changed marker icon position
+            popupAnchor: [0, -60], // changed popup position
+        });
+
+        //Icon class for custom icons 
+        let manIcon = L.Icon.extend({
+            options: {
+                iconSize: [37,37],    
+                iconAnchor: [23,37],
+                popupAnchor: [-5, -37] 
+            }
+        });
+
+
+        
+
+        //Site one  //backTurner bt_dot = centre point of all geofences for the Back Turner
+        const bt_dot  = turf.point([-2.225488,53.467251]);    // Oregon Close Street near the camp        
+        const bt_geof_in = turf.buffer(bt_dot, 0.02, {units:'kilometers',steps:24}); 
+        const bt_geof_mid = turf.buffer(bt_dot, 0.1, {units:'kilometers', steps:24}); 
+        const bt_geof_out = turf.buffer(bt_dot, 0.2,{units: 'kilometers',steps:24});
+            
+        L.geoJSON(bt_geof_in,{style: innerStyle}).addTo(map); 
+        L.geoJSON(bt_geof_mid, {style: midStyle}).addTo(map); 										
+        L.geoJSON(bt_geof_out,{style: outerStyle}).addTo(map);	
+
+        const bt = L.marker([53.467251,-2.225488]).bindPopup("Back Turner Invader"); // {icon:backTurner} .addTo(map)   
+
+        // Inner geofence
+        const bt_popupContent1 = ("<h1 style ='text-align:center; color: #263985'> Well done! You found Back Turner Invader!</h1><b> Please click on your music icon to listen to a story </b>")   //Add content using HTML tags 
+        const bt_popup1 = bt.bindPopup(bt_popupContent1, { 
+            maxWidth: 320,				 
+            maxHeight: 400
+        });
+        
+        // Middle geofence
+        const bt_popupContent2 = ("<h1 style ='text-align:center; color: #263985'> You are very close to Back Turner Street invader!</h1><b> Walk to the corner of Back Turner and Back Thomas streets to catch that wily creature.</b><iframe src='pics/01_back_turner_rs.jpg' width='300' height='300' frameborder='0' ></iframe>")   //Add content using HTML tags 
+        const bt_popup2 = bt.bindPopup(bt_popupContent2, { 
+            maxWidth: 320,				 
+            maxHeight: 400
+        });
+        // Outer geofence
+        const bt_popupContent3 = ("<h1 style ='text-align:center; color: #263985'> Yes, there are space invaders hiding here!</h1><b> It might be only one sneaky invader or might be many.</b><iframe src='pics/01_back_turner_rs.jpg' width='300' height='300' frameborder='0' ></iframe>")   //Add content using HTML tags 
+        const bt_popup3 = bt.bindPopup(bt_popupContent3, { 
+            maxWidth: 320,				 
+            maxHeight: 400
+        });
+
+        bt.off('click'); 
+
+
+
+        //Site two //oak
+        const eb_dot  = turf.point([-2.234008,53.469546]);      // Engineering building    (eb = engineering building)   
+        const eb_geof_in = turf.buffer(eb_dot, 0.02, {units:'kilometers',steps:24});
+        const eb_geof_mid = turf.buffer(eb_dot, 0.1, {units:'kilometers', steps:24});   
+        const eb_geof_out = turf.buffer(eb_dot, 0.2,{units: 'kilometers',steps:24});    
+        var eb = L.marker([53.469546,-2.234008]).bindPopup("Oak Street Invader");   //, {icon:oak}   .addTo(map)
+        L.geoJSON(eb_geof_in,{style: innerStyle}).addTo(map);
+        L.geoJSON(eb_geof_mid, {style: midStyle}).addTo(map); 										
+        L.geoJSON(eb_geof_out,{style: outerStyle}).addTo(map);				 
+
+        // Inner geofence
+        const eb_popupContent1 = ("<h1 style ='text-align:center; color: #263985'> Well done! You found Oak Street Invader!</h1><b> It might be only one sneaky invader or might be many.</b>")   //Add content using HTML tags 
+        const eb_popup1 = eb.bindPopup(eb_popupContent1, { 
+            maxWidth: 320,				 
+            maxHeight: 400
+        });
+        // Middle geofence
+        const eb_popupContent2 = ("<h1 style ='text-align:center; color: #263985'> You are very close to Engineering invader!</h1><b> Walk to the centre of the Engineering Building to catch that wily creature.</b>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
+        const eb_popup2 = eb.bindPopup(eb_popupContent2, { 
+            maxWidth: 320,				 
+            maxHeight: 400
+        });
+        // Outer geofence
+        const eb_popupContent3 = ("<h1 style ='text-align:center; color: #263985'> Yes, there are space invaders hiding here!</h1><b> It might be only one sneaky invader or might be many.</b>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
+        const eb_popup3 = eb.bindPopup(eb_popupContent3, { 
+            maxWidth: 320,				 
+            maxHeight: 400
+        });
+        eb.off('click'); 
+
+
+
+
+        // Adding audio Popup
+
+        // Add a song icon
+        const audioIcon = L.icon({
+            iconUrl: "music.png",
+            iconSize: [50, 58], // size of the icon
+            iconAnchor: [20, 58], // changed marker icon position
+            popupAnchor: [0, -60], // changed popup position
+        });
+        
+
+        // create popup contents
+        const customPopup =
+        //'<iframe width="360" height="310" src="https://www.youtube.com/embed/glKDhBuoRUs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+        '<b>House of the rising sun</b><br><iframe src="media/house_of_rising_sun.mp3" width="300" height="60" frameborder="0" ></iframe>';
+
+        // specify popup options
+        const customOptions = {
+        maxWidth: "auto", // set max-width
+        className: "customPopup", // name custom popup
+        };
+
+
+
+
+        //Call location function	
+        map.on('locationfound', onLocationFound);   //onLocationFound  getPosition
+
+
+        // Location error function 
+        function onLocationError(e) {         
+            alert(e.message); 
+        } 
+        map.on('locationerror', onLocationError);
+
+
+
+
+
+
+        </script>
+    </body>
+</html>
