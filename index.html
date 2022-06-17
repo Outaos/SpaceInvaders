@@ -164,8 +164,8 @@
             
 
             //For loop to assess if current location is within outer geofence.  geof_out = outer geofence
-            const outerbufferList = [bt_geof_out, eb_geof_out, ab_geof_out, bc_geof_out, de_geof_out]; 
-            const outerPopups = [bt_popup3, eb_popup3];  
+            const outerbufferList = [bt_geof_out, eb_geof_out, ab_geof_out, bc_geof_out]; 
+            const outerPopups = [bt_popup3, eb_popup3, ab_popup3, bc_popup3];  
             // 'i' is for index. Meaning that for index 0 (when we start to iterrate) when i is smaller than length, i++ is probably go one by one
             for ( let i=0; i<outerbufferList.length; i++) {
                 if (turf.booleanWithin(player, outerbufferList[i])) {
@@ -180,8 +180,8 @@
             }
 
             //For loop to assess if current location is within middle geofence
-            const midbufferList = [bt_geof_mid, eb_geof_mid, ab_geof_mid, bc_geof_mid, de_geof_mid];
-            const midPopups = [bt_popup2, eb_popup2]; 
+            const midbufferList = [bt_geof_mid, eb_geof_mid, ab_geof_mid, bc_geof_mid];
+            const midPopups = [bt_popup2, eb_popup2, ab_popup2, bc_popup2]; 
 
             for ( let i=0; i<midbufferList.length; i++) {
                 if (turf.booleanWithin(player, midbufferList[i])) {
@@ -195,21 +195,24 @@
             }
             
             //For loop to assess if current location is within inner geofence.   geof = geofence; in = inner
-            const innerbufferList = [bt_geof_in,eb_geof_in, ab_geof_in, bc_geof_in, de_geof_in];
-            const innerPopups = [bt_popup1, eb_popup1];
-            const popup_audio = []   
+            const innerbufferList = [bt_geof_in,eb_geof_in, ab_geof_in, bc_geof_in];
+            // const innerPopups = [bt_popup1, eb_popup1];
+            const popup_audio = [house_of_rising_sun, gotta_let_you_go, dont_look_back_in_anger, rhinestone_eyes]   
 
             for ( let i = 0; i < innerbufferList.length; i++) {       
                 if (turf.booleanWithin(player, innerbufferList[i])) {					
-                    innerPopups[i].openPopup();
+                    popup_audio[i].addTo(map);   // .openPopup()
                             // create marker object, pass custom icon as option, pass content and options to popup, add to map
-                            L.marker(e.latlng, {icon: audioIcon}).bindPopup(customPopup, customOptions).addTo(map);       
+                            // L.marker(e.latlng, {icon: audioIcon}).bindPopup(customPopup, customOptions).addTo(map);       
                             L.geoJSON(innerbufferList[i], {style:enterstyleIn}).addTo(map); 			
                 }  else {
                     loc.bindPopup("<strong>You are here.</strong><br />Keep exploring!.", {maxWidth: 500});
                 }
             } 
         }
+
+
+
 
         const funny = L.icon({
             iconUrl: "http://grzegorztomicki.pl/serwisy/pin.png",
@@ -238,7 +241,7 @@
         
 
         //Site one  //backTurner bt_dot = centre point of all geofences for the Back Turner
-        const bt_dot  = turf.point([-2.228177,53.487077]);    // Wang Ying store        
+        const bt_dot  = turf.point([-2.228104,53.490878]);    // crossroad                        // Wang Ying store = [53.487077,-2.228177]       
         const bt_geof_in = turf.buffer(bt_dot, 0.02, {units:'kilometers',steps:24}); 
         const bt_geof_mid = turf.buffer(bt_dot, 0.05, {units:'kilometers', steps:24}); 
         const bt_geof_out = turf.buffer(bt_dot, 0.1,{units: 'kilometers',steps:24});
@@ -247,24 +250,16 @@
         L.geoJSON(bt_geof_mid, {style: midStyle}).addTo(map); 										
         L.geoJSON(bt_geof_out,{style: outerStyle}).addTo(map);	
 
-        const bt = L.marker([53.487077,-2.228177], {icon:dot}).bindPopup().addTo(map);
-        
-
-        // Inner geofence
-        const bt_popupContent1 = ("<h1 style ='text-align:center; color: #263985'> Well done! You found Back Turner Invader!</h1><b> Please click on your music icon to listen to a story </b>")   //Add content using HTML tags 
-        const bt_popup1 = bt.bindPopup(bt_popupContent1, { 
-            maxWidth: 320,				 
-            maxHeight: 400
-        });
-        
+        const bt = L.marker([53.490878,-2.228104], {icon:dot}).bindPopup().addTo(map);
+   
         // Middle geofence
-        const bt_popupContent2 = ("<h1 style ='text-align:center; color: #263985'> You are very close to Back Turner Street invader!</h1><b> Walk to the corner of Back Turner and Back Thomas streets to catch that wily creature.</b><iframe src='pics/01_back_turner_rs.jpg' width='300' height='300' frameborder='0' ></iframe>")   //Add content using HTML tags 
+        const bt_popupContent2 = ("<h1 style ='text-align:center; color: #263985'> You are very close to Back Turner Street invader!</h1><b> Walk to the corner of Back Turner and Back Thomas streets to catch that wily creature.</b><iframe src='pics/01_back_turner.jpg' width='300' height='300' frameborder='0' ></iframe>")   //Add content using HTML tags 
         const bt_popup2 = bt.bindPopup(bt_popupContent2, { 
             maxWidth: 320,				 
             maxHeight: 400
         });
         // Outer geofence
-        const bt_popupContent3 = ("<h1 style ='text-align:center; color: #263985'> Yes, there are space invaders hiding here!</h1><b> It might be only one sneaky invader or might be many.</b><iframe src='pics/01_back_turner.jpg' width='300' height='300' frameborder='0' ></iframe>")   //Add content using HTML tags 
+        const bt_popupContent3 = ("<h1 style ='text-align:center; color: #263985'> Yeees, there are space invaders hiding here!</h1><b> It might be only one sneaky invader or might be many.</b><b> Please walk towards the centre of this circle to disocver more.</b><iframe src='pics/invader.png' width='300' height='300' frameborder='0' ></iframe>")   //Add content using HTML tags 
         const bt_popup3 = bt.bindPopup(bt_popupContent3, { 
             maxWidth: 320,				 
             maxHeight: 400
@@ -285,80 +280,124 @@
         L.geoJSON(eb_geof_mid, {style: midStyle}).addTo(map); 										
         L.geoJSON(eb_geof_out,{style: outerStyle}).addTo(map);				 
 
-        // Inner geofence
-        const eb_popupContent1 = ("<h1 style ='text-align:center; color: #263985'> Well done! You found Oak Street Invader!</h1><b> It might be only one sneaky invader or might be many.</b>")   //Add content using HTML tags 
-        const eb_popup1 = eb.bindPopup(eb_popupContent1, { 
-            maxWidth: 320,				 
-            maxHeight: 400
-        });
         // Middle geofence
-        const eb_popupContent2 = ("<h1 style ='text-align:center; color: #263985'> You are very close to Engineering invader!</h1><b> Walk to the centre of the Engineering Building to catch that wily creature.</b>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
+        const eb_popupContent2 = ("<h1 style ='text-align:center; color: #263985'> You are very close to Engineering invader!</h1><b> Walk to the centre of the Engineering Building to catch that wily creature.</b><iframe src='pics/02_oak_street.jpg' width='300' height='300' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
         const eb_popup2 = eb.bindPopup(eb_popupContent2, { 
             maxWidth: 320,				 
             maxHeight: 400
         });
         // Outer geofence
-        const eb_popupContent3 = ("<h1 style ='text-align:center; color: #263985'> Yes, there are space invaders hiding here!</h1><b> It might be only one sneaky invader or might be many.</b>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
+        const eb_popupContent3 = ("<h1 style ='text-align:center; color: #263985'> Yeees, there are space invaders hiding here!</h1><b> It might be only one sneaky invader or might be many.</b><b> Please walk towards the centre of this circle to disocver more.</b><iframe src='pics/invader.png' width='300' height='300' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
         const eb_popup3 = eb.bindPopup(eb_popupContent3, { 
             maxWidth: 320,				 
             maxHeight: 400
         });
         eb.off('click'); 
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 //Site three //oak
-        const ab_dot  = turf.point([-2.235575,53.468177]);      // campus store   
+        const ab_dot  = turf.point([-2.226117,53.492234]);      // bridge  
         const ab_geof_in = turf.buffer(ab_dot, 0.02, {units:'kilometers',steps:24});
         const ab_geof_mid = turf.buffer(ab_dot, 0.05, {units:'kilometers', steps:24});   
         const ab_geof_out = turf.buffer(ab_dot, 0.1,{units: 'kilometers',steps:24});    
-        var ab = L.marker([53.468177,-2.235575]).bindPopup("Oak Street Invader");   //, {icon:oak}   .addTo(map)
+        var ab = L.marker([53.492234,-2.226117]).bindPopup("Oak Street Invader");   //, {icon:oak}   .addTo(map)
         L.geoJSON(ab_geof_in,{style: innerStyle}).addTo(map);
         L.geoJSON(ab_geof_mid, {style: midStyle}).addTo(map); 										
         L.geoJSON(ab_geof_out,{style: outerStyle}).addTo(map);
 
+        // Middle geofence
+        const ab_popupContent2 = ("<h1 style ='text-align:center; color: #263985'> You are very close to Engineering invader!</h1><b> Walk to the centre of the Engineering Building to catch that wily creature.</b><iframe src='pics/03_tib_street.jpg' width='300' height='300' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
+        const ab_popup2 = ab.bindPopup(ab_popupContent2, { 
+            maxWidth: 320,				 
+            maxHeight: 400
+        });
+        // Outer geofence
+        const ab_popupContent3 = ("<h1 style ='text-align:center; color: #263985'> Yeees, there are space invaders hiding here!</h1><b> It might be only one sneaky invader or might be many.</b><b> Please walk towards the centre of this circle to disocver more.</b><iframe src='pics/invader.png' width='300' height='300' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
+        const ab_popup3 = ab.bindPopup(ab_popupContent3, { 
+            maxWidth: 320,				 
+            maxHeight: 400
+        });
+        ab.off('click'); 
+
                 //Site four //oak
-        const bc_dot  = turf.point([-2.235645,53.467270]);      // campus park   
+        const bc_dot  = turf.point([-2.229317,53.492024]);      // tunnel entrance
         const bc_geof_in = turf.buffer(bc_dot, 0.02, {units:'kilometers',steps:24});
         const bc_geof_mid = turf.buffer(bc_dot, 0.05, {units:'kilometers', steps:24});   
         const bc_geof_out = turf.buffer(bc_dot, 0.1,{units: 'kilometers',steps:24});    
-        var bc = L.marker([53.467270,-2.235645]).bindPopup("Oak Street Invader");   //, {icon:oak}   .addTo(map)
+        var bc = L.marker([53.492024,-2.229317]).bindPopup("Oak Street Invader");   //, {icon:oak}   .addTo(map)
         L.geoJSON(bc_geof_in,{style: innerStyle}).addTo(map);
         L.geoJSON(bc_geof_mid, {style: midStyle}).addTo(map); 										
         L.geoJSON(bc_geof_out,{style: outerStyle}).addTo(map);
 
-                //Site five //oak
-        const de_dot  = turf.point([-2.235983,53.466647]);      // near ALB building   
-        const de_geof_in = turf.buffer(de_dot, 0.02, {units:'kilometers',steps:24});
-        const de_geof_mid = turf.buffer(de_dot, 0.05, {units:'kilometers', steps:24});   
-        const de_geof_out = turf.buffer(de_dot, 0.1,{units: 'kilometers',steps:24});    
-        var de = L.marker([53.466647,-2.235983]).bindPopup("Oak Street Invader");   //, {icon:oak}   .addTo(map)
-        L.geoJSON(de_geof_in,{style: innerStyle}).addTo(map);
-        L.geoJSON(de_geof_mid, {style: midStyle}).addTo(map); 										
-        L.geoJSON(de_geof_out,{style: outerStyle}).addTo(map);
+        // Middle geofence
+        const bc_popupContent2 = ("<h1 style ='text-align:center; color: #263985'> You are very close to Engineering invader!</h1><b> Walk to the centre of the Engineering Building to catch that wily creature.</b><iframe src='pics/12_canal_street.jpg' width='300' height='300' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
+        const bc_popup2 = bc.bindPopup(bc_popupContent2, { 
+            maxWidth: 320,				 
+            maxHeight: 400
+        });
+        // Outer geofence
+        const bc_popupContent3 = ("<h1 style ='text-align:center; color: #263985'> Yeees, there are space invaders hiding here!</h1><b> It might be only one sneaky invader or might be many.</b><b> Please walk towards the centre of this circle to disocver more.</b><iframe src='pics/invader.png' width='300' height='300' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
+        const bc_popup3 = bc.bindPopup(bc_popupContent3, { 
+            maxWidth: 320,				 
+            maxHeight: 400
+        });
+        bc.off('click'); 
 
-
-
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Adding audio Popup
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Add a song icon
         const audioIcon = L.icon({
-            iconUrl: "music.png",
+            iconUrl: "pinkMusic.png",
             iconSize: [50, 58], // size of the icon
             iconAnchor: [20, 58], // changed marker icon position
             popupAnchor: [0, -60], // changed popup position
         });
         
 
-        // create popup contents
-        const customPopup =
+        const customPopup1 =
         //'<iframe width="360" height="310" src="https://www.youtube.com/embed/glKDhBuoRUs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
-        '<b>House of the rising sun</b><br><iframe src="media/house_of_rising_sun.mp3" width="300" height="60" frameborder="0" ></iframe>';
-
+        '<b>Well done! You found Back Turner Invader!</b><br><b>Please listen to a story</b><br><iframe src="media/house_of_rising_sun.mp3" width="300" height="60" frameborder="0" ></iframe>';
         // specify popup options
-        const customOptions = {
+        const customOptions1 = {
         maxWidth: "auto", // set max-width
         className: "customPopup", // name custom popup
         };
+        const house_of_rising_sun = L.marker([53.490878,-2.228104], {icon: audioIcon}).bindPopup(customPopup1, customOptions1);
+        // create popup contents
+
+        // create popup contents
+        const customPopup2 =
+        //'<iframe width="360" height="310" src="https://www.youtube.com/embed/glKDhBuoRUs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+        '<b>Well done! You found Back Turner Invader!</b><br><iframe src="media/gotta_let_you_go.mp3" width="300" height="60" frameborder="0" ></iframe>';
+        // specify popup options
+        const customOptions2 = {
+        maxWidth: "auto", // set max-width
+        className: "customPopup", // name custom popup
+        };
+        const gotta_let_you_go = L.marker([53.493350,-2.226204], {icon: audioIcon}).bindPopup(customPopup2, customOptions2);
+
+        // create popup contents
+        const customPopup3 =
+        //'<iframe width="360" height="310" src="https://www.youtube.com/embed/glKDhBuoRUs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+        '<b>Well done! You found Back Turner Invader!</b><br><iframe src="media/dont_look_back_in_anger.mp3" width="300" height="60" frameborder="0" ></iframe>';
+        // specify popup options
+        const customOptions3 = {
+        maxWidth: "auto", // set max-width
+        className: "customPopup", // name custom popup
+        };
+        const dont_look_back_in_anger = L.marker([53.492234,-2.226117], {icon: audioIcon}).bindPopup(customPopup3, customOptions3);
+
+        // create popup contents
+        const customPopup4 =
+        //'<iframe width="360" height="310" src="https://www.youtube.com/embed/glKDhBuoRUs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+        '<b>Well done! You found Back Turner Invader!</b><br><iframe src="rhinestone_eyes.mp3" width="300" height="60" frameborder="0" ></iframe>';
+        // specify popup options
+        const customOptions4 = {
+        maxWidth: "auto", // set max-width
+        className: "customPopup", // name custom popup
+        };
+        const rhinestone_eyes = L.marker([53.492024,-2.229317], {icon: audioIcon}).bindPopup(customPopup4, customOptions4);
 
 
 
