@@ -82,19 +82,19 @@
         // Style for geofences
         const outerStyle = {      
             "color": "#2E86C1",
-            "weight": 2,       //2
+            "weight": 0,       //2
             "fillOpacity": 0.0   //0.1
         };
 
         const midStyle = {
             "color": "#2E86C1",
-            "weight": 2,
+            "weight": 0,
             "fillOpacity": 0.0
         };
 
         const innerStyle = {
             "color": "#2E86C1", 
-            "weight": 2, 
+            "weight": 0, 
             "fillOpacity":0.0   //0.4 
         };
 
@@ -234,11 +234,11 @@
             }
         });
 
-
+        const dot = new manIcon({iconUrl: 'pics/dot.png'});
         
 
         //Site one  //backTurner bt_dot = centre point of all geofences for the Back Turner
-        const bt_dot  = turf.point([-2.234910,53.470444]);    // Oregon Close Street near the camp        
+        const bt_dot  = turf.point([-2.228177,53.487077]);    // Wang Ying store        
         const bt_geof_in = turf.buffer(bt_dot, 0.02, {units:'kilometers',steps:24}); 
         const bt_geof_mid = turf.buffer(bt_dot, 0.05, {units:'kilometers', steps:24}); 
         const bt_geof_out = turf.buffer(bt_dot, 0.1,{units: 'kilometers',steps:24});
@@ -247,7 +247,8 @@
         L.geoJSON(bt_geof_mid, {style: midStyle}).addTo(map); 										
         L.geoJSON(bt_geof_out,{style: outerStyle}).addTo(map);	
 
-        const bt = L.marker([53.470444,-2.234910]).bindPopup("Back Turner Invader"); // {icon:backTurner} .addTo(map)   
+        const bt = L.marker([53.487077,-2.228177], {icon:dot}).bindPopup().addTo(map);
+        
 
         // Inner geofence
         const bt_popupContent1 = ("<h1 style ='text-align:center; color: #263985'> Well done! You found Back Turner Invader!</h1><b> Please click on your music icon to listen to a story </b>")   //Add content using HTML tags 
@@ -263,7 +264,7 @@
             maxHeight: 400
         });
         // Outer geofence
-        const bt_popupContent3 = ("<h1 style ='text-align:center; color: #263985'> Yes, there are space invaders hiding here!</h1><b> It might be only one sneaky invader or might be many.</b><iframe src='pics/01_back_turner_rs.jpg' width='300' height='300' frameborder='0' ></iframe>")   //Add content using HTML tags 
+        const bt_popupContent3 = ("<h1 style ='text-align:center; color: #263985'> Yes, there are space invaders hiding here!</h1><b> It might be only one sneaky invader or might be many.</b><iframe src='pics/01_back_turner.jpg' width='300' height='300' frameborder='0' ></iframe>")   //Add content using HTML tags 
         const bt_popup3 = bt.bindPopup(bt_popupContent3, { 
             maxWidth: 320,				 
             maxHeight: 400
@@ -274,11 +275,12 @@
 
 
         //Site two //oak
-        const eb_dot  = turf.point([-2.234105,53.469588]);      // Engineering building    (eb = engineering building)   
+        const eb_dot  = turf.point([-2.226204,53.493350]);     // Christabel   
         const eb_geof_in = turf.buffer(eb_dot, 0.02, {units:'kilometers',steps:24});
         const eb_geof_mid = turf.buffer(eb_dot, 0.05, {units:'kilometers', steps:24});   
         const eb_geof_out = turf.buffer(eb_dot, 0.1,{units: 'kilometers',steps:24});    
-        var eb = L.marker([53.469588,-2.234105]).bindPopup("Oak Street Invader");   //, {icon:oak}   .addTo(map)
+        var eb = L.marker([53.493350,-2.226204], {icon:dot}).bindPopup().addTo(map);  // Christabel
+        
         L.geoJSON(eb_geof_in,{style: innerStyle}).addTo(map);
         L.geoJSON(eb_geof_mid, {style: midStyle}).addTo(map); 										
         L.geoJSON(eb_geof_out,{style: outerStyle}).addTo(map);				 
