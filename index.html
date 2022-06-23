@@ -5,14 +5,21 @@
 		<title>A location-based game to rediscover your city</title>              
 	
 		<!-- Leafet CSS -->
-		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"/> 
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+        integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+        crossorigin=""/>
+		<!--  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"/>  -->
         <!--Leaflet js -->    
-		<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>   
+        <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+        integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+        crossorigin=""></script>
+		<!--  <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>   -->
 		
         <!-- Turf js -->
-		<script src='https://unpkg.com/@turf/turf@6.3.0/turf.min.js'></script>    
-
-		<!-- jquery-->
+		<script src='https://unpkg.com/@turf/turf@6.3.0/turf.min.js'></script>  
+        
+        <!--  NOT SURE I NEED THIS -->
+		<!-- jquery -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
 
         <!-- Delete @[VERSION] to allow the download of the latest version-->
@@ -37,6 +44,28 @@
 				height: 85%;
 			}
 
+            #toggle {
+				background-image: url("pics/menu_white_.png"); 
+				border: none; 
+				height: 33px;
+				width: 35px; 
+				margin-top: 37px;
+				margin-right: 15px;
+				position: absolute;
+				top: 0;
+				right: 0; 
+				background-color: #467984; 
+			}
+			
+			.figureborder { 
+				border-style: solid; 
+				border-color:#898989;
+				padding: 2px;
+				border-width: thin; 
+				background-color: #DCDADA;  
+			} 
+
+            /*  NOT SURE I NEED THIS */
 			/* Button style */
 			button {
 				background: #0084ff;
@@ -63,9 +92,9 @@
 
 
     <!-- Set background colour --> 
-    <body style="background-color: #061529">   <!--#467984-->
+    <body style="background-color: #061529"> 
 
-        <h1 style= 'font-size: 40px; font-family: Times New Roman; color:white; text-align:left; margin-bottom: -10px; margin-left:10px; text-shadow: 2px 2px whitesmoke'> Man_stories. A location-based game to rediscover Manchester </h1>                          
+        <h1 style= 'font-size: 36px; font-family: Arial; color:white; text-align:left; margin-bottom: -1px; margin-left:10px; text-shadow: 1px 1px whitesmoke'> Man_stories. A location-based game to rediscover Manchester </h1>                          
         
         <!-- Initialise the map-->
 		<div id='map'></div>
@@ -209,6 +238,38 @@
                     loc.bindPopup("<strong>You are here.</strong><br />Keep exploring!.", {maxWidth: 500});
                 }
             } 
+
+           
+            /*
+            // SQUARE GRID******************************************************************************************
+            */
+
+            // specify units for measurement
+            let gridOptions = {units: 'kilometers'};
+            // get grid as a turf polygon 
+            let grid = turf.squareGrid([-2.257649,53.459561,-2.220493,53.494114], 0.1, gridOptions);
+            // turn grid into geoJson to display on a map
+            let cover = L.geoJson(grid, {style: {color:'#000000', fill: '#89CFF0', fillOpacity: 1, weight: 0.5}}).addTo(map); 
+            //console.log(cover);
+            
+            //Loop through each grid square
+			cover.eachLayer(function(layer){
+
+                //Get grid as a turf polygon
+                let poly = turf.polygon(layer.feature.geometry.coordinates);
+
+                //Check if avatar intersects with grid
+                let ptIntersect = turf.booleanPointInPolygon(player, poly);
+
+                //Get bounds of the grid and zoom to it
+                if(ptIntersect === true){
+                    
+                    // Update the layer to ensure that only squares where the player is located are see-through
+                    layer.setStyle({fillOpacity: 0})
+                    
+                }
+
+                });
         }
 
 
@@ -397,6 +458,8 @@
         maxWidth: "auto", // set max-width
         className: "customPopup", // name custom popup
         };
+
+
         const rhinestone_eyes = L.marker([53.492024,-2.229317], {icon: audioIcon}).bindPopup(customPopup4, customOptions4);
 
 
@@ -411,6 +474,51 @@
             alert(e.message); 
         } 
         map.on('locationerror', onLocationError);
+
+        //************************************************************************************************
+       // var bbox = [-96,31,-84,40];
+       // var cellSide = 100;
+        //var options = {units: 'meters'};
+
+        //var hexgrid = turf.hexGrid(bbox, cellSide, options).addTo(map);
+        // get the bounds of the points
+        //const bbox = turf.bbox('grid_100m.json');
+
+        // build a 100m hex grid to cover the area of interest
+        //const hexgrid = turf.hexGrid(bbox, 100, {units: 'meters'}).addTo(map);
+        const bbox = [-96,31,-84,40];
+        const cellSide = 50;
+        const options = {};
+        const hexGrid = turf.hexGrid(bbox, cellSide, options);
+        hexGrid.features.forEach(f => {
+        f.properties = { density: Math.random() };  
+        });
+
+        map.on('load', function () {
+
+            map.addLayer({
+                'id': 'maine',
+                'type': 'fill',
+                'source': {
+                    'type': 'geojson',
+                    'data': hexGrid
+                },
+                'layout': {},
+                'paint': {
+                    'fill-color': '#088',
+                    'fill-opacity': [
+                    "interpolate", ["linear"], ["get", "density"],
+                    0, 0.3,
+                    1, 1
+                    ]
+                }
+            });
+        });
+
+
+
+
+
 
 
 
