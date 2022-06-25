@@ -27,6 +27,12 @@
         <!-- Ajax font-awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+        <!-- Load Firebase -->
+	    <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-app.js"></script>
+	    <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-auth.js"></script>
+	    <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-database.js"></script>
+
+
         <!-- Set size to fit mobile browser -->
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
@@ -246,7 +252,7 @@
             function onLocationFound(e) { 
 
                 
-                // Create a turf point to be able to interact with the other features 
+                // use turf to create a turf.Point() object (which is stored as GeoJSON) Create a turf point to be able to interact with the other features 
                 player = turf.point([e.latlng.lng, e.latlng.lat]);		 	 
                 // Geolocation icon
                 const playerIcon = L.icon({     
@@ -268,11 +274,14 @@
                 // To inform a player if she's not in the geofence  // b = middle buffer   
                 //For loop to assess if current location is within outer geofence.  geof_out = outer geofence
                 const outofBufferB = [b_buff_1, b_buff_2, b_buff_3, b_buff_4];
-                const dots = [dot_1, dot_2, dot_3, dot_4];
+                const dots = turf.featureCollection([dot_1, dot_2, dot_3, dot_4]);
+                // calculate the nearest point
+                var nearest = turf.nearestPoint(player, dots);
+
                 for ( let i=0; i<outofBufferB.length; i++) {
                     inside = turf.booleanWithin(player, outofBufferB[i],)
                     if (inside === false) { 
-                        let distance = Math.round(turf.distance(player,dots[i],{units:'kilometers'})*1000)/1000;  //var
+                        let distance = Math.round(turf.distance(player,nearest,{units:'kilometers'})*1000)/1000;  //var
                         // 5 km/hr is an average speed of a person
                         let time_dist =  Math.round(60*distance)/5;             
 						position.bindPopup("<h1 style ='text-align:center; color: #061529'>Yes! There are space invaders hiding here!</h1> <b>The nearest invader is about: " + time_dist.toString()+" minutes away!</b>");
@@ -283,6 +292,7 @@
                         position.bindPopup("<strong>You very close.</strong><br />Keep exploring!.", {maxWidth: 500});
                     }
                 }
+                console.log(nearest)
 
                 // Calculate nearest point function
                 // https://stackoverflow.com/questions/56306097/get-nearest-point-from-another-one-in-javascript
@@ -668,6 +678,20 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+             
 
 
         </script>
