@@ -27,25 +27,12 @@
         <!-- Ajax font-awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-        <!-- Load Firebase -->
-	    <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-app.js"></script>
-	    <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-auth.js"></script>
-	    <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-database.js"></script>
-
-
         <!-- Set size to fit mobile browser -->
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
 
 
-        <!--  NOT SURE I NEED THIS -->
-		<!-- jquery -->
-        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script> -->
-		
-
         <!-- Delete @[VERSION] to allow the download of the latest version-->
-        <!--         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
-        <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script> -->
 
 		
            
@@ -138,11 +125,8 @@
 
         <!-- Create a sidebar --> 
         <div id="sidebar_settings">                  
-			<h1 style="background-color: white ; color:black; text-shadow: 1px 1px #061529; padding-right:5px;">Discovered stories:</h1> 				
-			<p id="stories_num" style="text-align: center;"></p>
-			<hr>
 			<h1 style="background-color: white ;text-shadow: 1px 1px #061529; padding-right:5px;"> Gameflow </h1> 
-			<p> 1. Walk around central Manchester to discover stories. <br> 2. Touch the 'feet' icon to see how far you are from the nearest story. <br> 3. Once you enter an invisible geofence the hint will popup and the geofence will appear on the map. <br> 4. The app will help you count discovered stories. <br> 5. Dare to add you own stories to the game. <br> 6. Share your stories with friends!</p> 
+			<p> 1. Walk around central Manchester to discover stories. <br> 2. Touch the 'feet' icon to see how far you are from the nearest story. <br> 3. Once you enter an invisible geofence the hint will popup and the geofence will appear on the map. <br> 4. After listening to the story you are welcome to rate it. <br> 5. Dare to add you own stories to the game. <br> 6. Share your stories with friends!</p> 
 			<hr>
 
 		</div>
@@ -164,12 +148,9 @@
 
             // Set location variable to 'null' to account for no info when user just enters the game
             let position = null;  
-            
-            // Count number of discovered stories 					
-			let story_counter = [0,0,0,0,0,0];  
                         
             // Create alert message with basic information about the game
-            alert("Welcome to Man_stories!\n\n\This game aims to help you explore the city by searching for hidden multimedia stories in the real-world urban environment. To continue please enable location on your device.\n\nFurther instructions are in the menu.\n\n Have fun!");      
+            alert("Welcome to Man_stories!\n\n\This game aims to help you explore the city by searching for hidden multimedia stories in the real-world urban environment. To continue please enable location on your device.\n\nPlease click on the menu icon in the upper right corner for further instructions.");      
 
 
             // Style the geofences
@@ -213,7 +194,7 @@
             /*
             // CREATE A MAP   *************************************************************************************************
             */
-            // Create map  
+            // Map tiles 
             const map = L.map('map');
             const mapCentre = L.latLng(53.4808,-2.2426);
             map.setView(mapCentre,13); //13
@@ -275,6 +256,8 @@
                 //For loop to assess if current location is within outer geofence.  geof_out = outer geofence
                 const outofBufferB = [b_buff_1, b_buff_2, b_buff_3, b_buff_4];
                 const dots = turf.featureCollection([dot_1, dot_2, dot_3, dot_4]);
+                // nearest point explained here:
+                // https://www.npmjs.com/package/@turf/nearest-point
                 // calculate the nearest point
                 var nearest = turf.nearestPoint(player, dots);
 
@@ -319,16 +302,11 @@
                 for ( let i = 0; i < a_buffers.length; i++) {       
                     if (turf.booleanWithin(player, a_buffers[i])) {					
                         popup_audio[i].addTo(map);   // .openPopup()
-                                
-                            if ( story_counter [i] == 0) {      
-                                story_counter[i] = 1; 		 
-							points = 0;        
-							for(let j in story_counter) { points += story_counter[j]; } 
-							document.getElementById("stories_num").innerHTML = points; 
+ 
 							L.geoJSON(a_buffers[i], {style:enterstyleIn}).addTo(map); 			
 						}	
                     }  
-                } 
+                 
 
             
                 /*/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -338,7 +316,7 @@
                 // specify units for measurement
                 let gridOptions = {units: 'kilometers'};
                 // get grid as a turf polygon 
-                let grid = turf.squareGrid([-2.257649,53.459561,-2.220493,53.494114], 0.1, gridOptions);
+                let grid = turf.squareGrid([-2.275069,53.456925,-2.204545,53.504266], 0.1, gridOptions);   // Manchester City Centre [-2.257649,53.459561,-2.220493,53.494114]
                 // turn grid into geoJson to display on a map
                 let cover = L.geoJson(grid, {style: {color:'#000000', fill: '#89CFF0', fillOpacity: 0.5, weight: 0.5}}).addTo(map); 
                 //console.log(cover);
