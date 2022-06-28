@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
- 		<title>GIS and the Web</title>
+ 		<title>A location-based game to rediscover your city</title>
 		
 
 		<!-- Leafet CSS -->
@@ -94,7 +94,7 @@
             // Leaflet function that tracks player's geolocation
             map.locate({setView: true, maxZoom: 20, watch: true, enableHighAccuracy: true});   //14
 
-/*
+            /*
             // GEOLOCATION FUNCTION   *************************************************************************************************
             */
             function onLocationFound(e) { 
@@ -119,36 +119,35 @@
                     position.setLatLng(e.latlng); 
                 }
 
-
 				// List of type 'B' buffers  (For loop to assess if a players is within type 'B' buffers)
 				const b_buffers = [b_buff_1, b_buff_2, b_buff_3, b_buff_4];
                 // List of type 'B' popups --> image and a street name
                 const b_popups = [b_pop_1, b_pop_2, b_pop_3, b_pop_4]; 
 
-				// variable flag, takes every buffer_b in the game
-                let enterBuffer_b = []
+               
+                // Set event listener
+                b_buffers.setListener('within', onWithinBuffer);   
+                
+				// variable flag, takes every buffer_b in the game and sets it to 'false'
+                let enterBuffer_b = [];
+                
                 for (let i=0; i<b_buffers.length; i++){
-                    enterBuffer_b.push(false)
-                };
+                    enterBuffer_b.push(false);}
 
                 // Function to change the Flag value when a player enters a buffer_b
                 function onWithinBuffer(i) {
                     if(!enterBuffer_b[i]){
-                        for ( let i=0; i<b_buffers.length; i++) {
-                    if (turf.booleanWithin(player, b_buffers[i])) {
-                        b_popups[i].openPopup();
-                            // create marker object, pass custom icon as option, pass content and options to popup, add to map
-                            //L.marker(e.latlng, {icon: playerIcon}).addTo(map); 
-                            L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
-                            } 
+                        for (let i=0; i<b_buffers.length; i++){
+                            if (turf.booleanWithin(player, b_buffers[i])) {
+                                b_popups[i].openPopup();
+                                // create marker object
+                                L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
+                            }
                         }
                         // update flag
-                        enterBuffer_b[i] = true
+                        enterBuffer_b[i] = true;
                     }
                 };
-
-                // Set event listener
-                enterBuffer_b.setListener('within', onWithinBuffer);   // addEventListener
 
 			}
 
@@ -169,7 +168,7 @@
 
 			// Story # 1
 			const dot_1  = turf.point([-2.228138,53.487068]);    // crossroad                        // Wang Ying store = [53.487068,-2.228138]       
-            const b_buff_1 = turf.buffer(dot_1, 0.09, {units:'kilometers', steps:24}); 
+            const b_buff_1 = turf.buffer(dot_1, 0.2, {units:'kilometers', steps:24}); 
                 
             L.geoJSON(b_buff_1, {style: midStyle}).addTo(map); 										
 
@@ -188,7 +187,7 @@
 
             // Story # 2
             const dot_2  = turf.point([-2.226204,53.493350]);     // Christabel = [53.493350,-2.226204]  Rochdale road [53.493023,-2.224488]
-            const b_buff_2 = turf.buffer(dot_2, 0.05, {units:'kilometers', steps:24});  
+            const b_buff_2 = turf.buffer(dot_2, 0.2, {units:'kilometers', steps:24});  
             
             var story_2 = L.marker([53.493350,-2.226204], {icon:dot}).bindPopup().addTo(map);  // Christabel
             
@@ -206,7 +205,7 @@
             
             // Story # 3
             const dot_3  = turf.point([-2.224214,53.489711]);                  // St Patric school [53.489761,-2.224294]// ALB  [53.466781,-2.235710]
-            const b_buff_3 = turf.buffer(dot_3, 0.12, {units:'kilometers', steps:24});   
+            const b_buff_3 = turf.buffer(dot_3, 0.2, {units:'kilometers', steps:24});   
     
             var story_3 = L.marker([53.489711,-2.224214], {icon:dot}).bindPopup().addTo(map);   //, {icon:oak}   .addTo(map)
             
@@ -225,7 +224,7 @@
 
             // Story # 4 
             const dot_4  = turf.point([-2.225728,53.467265]);   // false uni location // tunnel entrance [-2.229317,53.492024]
-            const b_buff_4 = turf.buffer(dot_4, 0.05, {units:'kilometers', steps:24});   
+            const b_buff_4 = turf.buffer(dot_4, 0.8, {units:'kilometers', steps:24});   
    
             var story_4 = L.marker([53.467265,-2.225728], {icon:dot}).bindPopup().addTo(map);   //, {icon:oak}   .addTo(map)
            
