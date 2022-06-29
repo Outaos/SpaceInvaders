@@ -74,7 +74,7 @@
 
 
             /*
-            // CREATE A MAP   *************************************************************************************************
+            // CREATE A MAP  
             */
             // Create map  
             const map = L.map('map');
@@ -89,13 +89,15 @@
 
 
 			/*
-            // TRACK PLAYER'S LOCATION  *************************************************************************************************
+            // TRACK PLAYER'S LOCATION  
             */
             // Leaflet function that tracks player's geolocation
             map.locate({setView: true, maxZoom: 20, watch: true, enableHighAccuracy: true});   //14
 
+            
+            
             /*
-            // GEOLOCATION FUNCTION   *************************************************************************************************
+            // GEOLOCATION FUNCTION   
             */
             function onLocationFound(e) { 
 
@@ -123,25 +125,32 @@
 /***********************************************************************************************************************
  * */ //****************************************************************************************************************            
 
-				// List of type 'B' buffers  (For loop to assess if a players is within type 'B' buffers)
-				const b_buffers = [b_buff_1, b_buff_2, b_buff_3, b_buff_4];
+
+
+                   
+                // List of type 'B' buffers  (For loop to assess if a players is within type 'B' buffers)
+                const b_buffers = [b_buff_1, b_buff_2, b_buff_3, b_buff_4];
                 // List of type 'B' popups --> image and a street name
                 const b_popups = [b_pop_1, b_pop_2, b_pop_3, b_pop_4]; 
-
-
-
-                // Set event listener
-                b_buffers.setListener('within', onWithinBuffer);   
                 
-				// variable flag, takes every buffer_b in the game and sets it to 'false'
+                // Set event listener
+                b_buffers.setListener('within', onWithinBuffer);
+
+                // variable flag, takes every buffer_b in the game and sets it to 'false'
                 let enterBuffer_b = [];
                 
                 for (let i=0; i<b_buffers.length; i++){
-                    enterBuffer_b.push(false);}
+                    enterBuffer_b.push(False);}
+				
+
+                
 
                 // Function to change the Flag value when a player enters a buffer_b
                 function onWithinBuffer(i) {
-                    if(!enterBuffer_b[i]){
+                    if(!enterBuffer_b[i])
+                    // update flag
+                    enterBuffer_b[i] = true;
+                    {
                         for (let i=0; i<b_buffers.length; i++){
                             if (turf.booleanWithin(player, b_buffers[i])) {
                                 b_popups[i].openPopup();
@@ -149,10 +158,10 @@
                                 L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
                             }
                         }
-                        // update flag
-                        enterBuffer_b[i] = true;
+                        
                     }
                 };
+                
 
 			}
 
@@ -160,9 +169,7 @@
  * */ //****************************************************************************************************************
 
 
-			/*/////////////////////////////////////////////////////////
-            //INFO ON BUFFERS AND POPUPS
-            *//////////////////////////////////////////////////////////
+
             //Icon class for custom icons 
             let manIcon = L.Icon.extend({
                 options: {
