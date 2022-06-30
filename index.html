@@ -318,16 +318,16 @@
                 let cover = L.geoJson(grid, {style: {color:'#000000', fill: '#89CFF0', fillOpacity: 0.5, weight: 0.5}}).addTo(map); 
                 //console.log(cover);
                 
-                //Loop through each grid square
+                // Loop through each grid square
                 cover.eachLayer(function(layer){
 
-                    //Get grid as a turf polygon
+                    // Get grid as a turf polygon
                     let poly = turf.polygon(layer.feature.geometry.coordinates);
 
-                    //Check if avatar intersects with grid
+                    // Check if avatar intersects with grid
                     let ptIntersect = turf.booleanPointInPolygon(player, poly);
 
-                    //Get bounds of the grid and zoom to it
+                    // Get bounds of the grid and zoom to it
                     if(ptIntersect === true){
                         
                         // Update the layer to ensure that only squares where the player is located are see-through

@@ -94,7 +94,8 @@
             // Leaflet function that tracks player's geolocation
             map.locate({setView: true, maxZoom: 20, watch: true, enableHighAccuracy: true});   //14
 
-            
+            // initialise empty array 
+            let location_list = []
             
             /*
             // GEOLOCATION FUNCTION   
@@ -121,21 +122,65 @@
                     position.setLatLng(e.latlng); 
                 }
 
+
+                // Push the person's location to the array
+                location_list.push([e.latlng.lng, e.latlng.lat])
                 
-                let location_list = []
-                for (let i=0; i<10; i++) {
-                    location_list.push([e.latlng.lng, e.latlng.lat])
-                }
                 console.log(location_list)
+
+                // Create a Leaflet line layer
+                let player_movement = L.polyline(location_list)
+                // Update the polyline layer
+                player_movement.setLatLngs([e.latlng]).addTo(map);
 
 
 
 /***********************************************************************************************************************
  * */ //****************************************************************************************************************            
 
+                // List of type 'B' buffers  (For loop to assess if a players is within type 'B' buffers)
+                const b_buffers = [b_buff_1, b_buff_2, b_buff_3, b_buff_4];
+                // List of type 'B' popups --> image and a street name
+                const b_popups = [b_pop_1, b_pop_2, b_pop_3, b_pop_4]; 
+
+                let flag = false;
+
+                let b_buffers_json = L.geoJson(b_buffers, {style: {color:'#000000', fill: '#89CFF0', fillOpacity: 0.5, weight: 0.5}}).addTo(map);
+
+                b_buffers_json.eachLayer(function(layer){
+                     // Get grid as a turf polygon
+                     let fence = turf.polygon(layer.feature.geometry.coordinates);
+                     // Check if avatar intersects with grid
+                    let ptIntersect = turf.booleanPointInPolygon(player, fence);
+
+                        // Get bounds of the grid and zoom to it
+                        if(ptIntersect === true & flag === false){
+                            //if (){
+                                for (let i=0; i<b_buffers.length; i++){
+                                    if (turf.booleanWithin(player, b_buffers[i])) {
+                                        b_popups[i].openPopup();
+                                        // create marker object
+                                        L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
+                                    }
+                                }
+                                // Update the layer to ensure that only squares where the player is located are see-through
+                                //layer.setStyle({fillOpacity: 1})
+                            }
+                        else (ptIntersect === false && flag === true)
+                        flag === false
+                        }
+
+                    );
 
 
-                   
+
+
+
+
+
+
+
+                /*
                 // List of type 'B' buffers  (For loop to assess if a players is within type 'B' buffers)
                 const b_buffers = [b_buff_1, b_buff_2, b_buff_3, b_buff_4];
                 // List of type 'B' popups --> image and a street name
@@ -165,15 +210,16 @@
                 };
 
                 // Call the event listener
-                map.addEventListener('click',onWithinBuffer); 
+                //map.addEventListener('click',onWithinBuffer); 
 
 
 
 
-                map.addEventListener('click',exitedBuffer);
+                //map.addEventListener('click',exitedBuffer);
                 function exitedBuffer(i){
                     enterBuffer_b[i] = false;
                 }
+                */
                 
 
 			}
