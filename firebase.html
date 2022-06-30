@@ -121,6 +121,14 @@
                     position.setLatLng(e.latlng); 
                 }
 
+                
+                let location_list = []
+                for (let i=0; i<10; i++) {
+                    location_list.push([e.latlng.lng, e.latlng.lat])
+                }
+                console.log(location_list)
+
+
 
 /***********************************************************************************************************************
  * */ //****************************************************************************************************************            
@@ -132,20 +140,13 @@
                 const b_buffers = [b_buff_1, b_buff_2, b_buff_3, b_buff_4];
                 // List of type 'B' popups --> image and a street name
                 const b_popups = [b_pop_1, b_pop_2, b_pop_3, b_pop_4]; 
-                
-                // Set event listener
-                b_buffers.setListener('within', onWithinBuffer);
-
-                // variable flag, takes every buffer_b in the game and sets it to 'false'
+               
+                // A function to set the flag variable to 'false' for every buffer in enterBuffer_b 
                 let enterBuffer_b = [];
-                
                 for (let i=0; i<b_buffers.length; i++){
-                    enterBuffer_b.push(False);}
+                    enterBuffer_b.push(false);}
 				
-
-                
-
-                // Function to change the Flag value when a player enters a buffer_b
+                // Function to change the flag value when a player enters a buffer_b
                 function onWithinBuffer(i) {
                     if(!enterBuffer_b[i])
                     // update flag
@@ -160,10 +161,24 @@
                         }
                         
                     }
+                    
                 };
+
+                // Call the event listener
+                map.addEventListener('click',onWithinBuffer); 
+
+
+
+
+                map.addEventListener('click',exitedBuffer);
+                function exitedBuffer(i){
+                    enterBuffer_b[i] = false;
+                }
                 
 
 			}
+
+
 
 /***********************************************************************************************************************
  * */ //****************************************************************************************************************
