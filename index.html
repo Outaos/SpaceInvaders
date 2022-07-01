@@ -146,46 +146,43 @@
         
         <script>
 
-            // Set location variable to 'null' to account for no info when user just enters the game
-            let position = null;  
-
-
+            
             // Style the geofences
             const outerStyle = {      
                 "color": "#2E86C1",
                 "weight": 0,       //2
-                "fillOpacity": 0.4   //0.1
+                "fillOpacity": 0.1   //0.1
             };
 
             const midStyle = {
                 "color": "#2E86C1",
                 "weight": 0,
-                "fillOpacity": 0.4
+                "fillOpacity": 0.1
             };
 
             const innerStyle = {
                 "color": "#2E86C1", 
                 "weight": 0, 
-                "fillOpacity":0.0   //0.4 
+                "fillOpacity":0.1   //0.4 
             };
 
             // Style the entered geofences
             const enterstyleIn = { 
                 "color": "black",   // dark blue
                 "weight": 3,
-                "fillOpacity": 0.6
+                "fillOpacity": 0.8
             };
 
             const enterstyleMid = { 
                 "color": "#2E86C1",   // blue
                 "weight": 3,
-                "fillOpacity": 0.3
+                "fillOpacity": 0.8
             };
 
             const enterstyleOut = { 
                 "color": "red",   // light blue
                 "weight": 3,
-                "fillOpacity": 0.1
+                "fillOpacity": 0.8
             };
 
             /*
@@ -195,15 +192,10 @@
             const map = L.map('map');
             const mapCentre = L.latLng(53.4808,-2.2426);
             map.setView(mapCentre,13); //13
-            // Change tiles to make the map sexier
-            const Stamen_Terrain = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}', {
-                attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                subdomains: 'abcd',
-                minZoom: 0,
-                maxZoom: 30,
-                ext: 'png'
-            });
-            Stamen_Terrain.addTo(map)
+            // Change tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+							attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+						}).addTo(map);
 
             // Sidebar 
             var sidebar_settings = L.control.sidebar('sidebar_settings', {
@@ -220,6 +212,12 @@
             /*
             // TRACK PLAYER'S LOCATION  *************************************************************************************************
             */
+            // Set location variable to 'null' to account for no info when user just enters the game
+            let position = null; 
+
+            // initialise empty array for updated coords
+            let location_list = []
+            
             // Leaflet function that tracks player's geolocation
             map.locate({setView: true, maxZoom: 20, watch: true, enableHighAccuracy: true});   //14
 
@@ -229,7 +227,10 @@
             */
             function onLocationFound(e) { 
 
-                
+                /*
+                // Player's location   ///////////////
+                */
+
                 // use turf to create a turf.Point() object (which is stored as GeoJSON) Create a turf point to be able to interact with the other features 
                 player = turf.point([e.latlng.lng, e.latlng.lat]);		 	 
                 // Geolocation icon
@@ -249,15 +250,58 @@
                     position.setLatLng(e.latlng); 
                 }
 
-                // To inform a player if she's not in the geofence  // b = middle buffer   
-                //For loop to assess if current location is within outer geofence.  geof_out = outer geofence
+                // Push the person's location to the array
+                location_list.push([e.latlng.lng, e.latlng.lat])
+                
+                console.log(location_list)
+                
+                // Function to connect coords every 100 meters
+                for (i=0; i<location_list.length; i++){
+                    if(dist > 100){
+                        var dist = turf.distance(player,location_list[i],{units:'meters'});
+                         // Create a Leaflet polyline layer
+                        let player_movement = L.polyline(location_list)
+                        // Update the polyline layer
+                        player_movement.setLatLngs([e.latlng]).addTo(map);
+                    }
+                }
+
+
+                /*
+                // Geofences   ///////////////
+                */
+
+                // To inform a player if she's not in the geofence     
+                // Areas outside of the largest buffers  
                 const outofBufferB = [b_buff_1, b_buff_2, b_buff_3, b_buff_4];
+                // Points in the centre of each buffer
                 const dots = turf.featureCollection([dot_1, dot_2, dot_3, dot_4]);
-                // nearest point explained here:
-                // https://www.npmjs.com/package/@turf/nearest-point
+
+                // OUTER buffers list (larger buffers)
+                const b_buffers = [b_buff_1, b_buff_2, b_buff_3, b_buff_4];
+                // OUTER buffers' popups
+                const b_popups = [b_pop_1, b_pop_2, b_pop_3, b_pop_4]; 
+
+                // INNER buffers list (smaller buffers) 
+                const a_buffers = [a_buff_1,a_buff_2, a_buff_3, a_buff_4];
+                // Audio popups
+                const popup_audio = [house_of_rising_sun, gotta_let_you_go, dont_look_back_in_anger, rhinestone_eyes] 
+
+                // SQUARE GRID
+                // specify units for measurement
+                let gridOptions = {units: 'kilometers'};
+                // get grid as a turf polygon 
+                let grid = turf.squareGrid([-2.275069,53.456925,-2.204545,53.504266], 0.1, gridOptions);   // Manchester City Centre [-2.257649,53.459561,-2.220493,53.494114]
+                // turn grid into geoJson to display on a map
+                // let cover = L.geoJson(grid, {style: {color:'#000000', fill: '#89CFF0', fillOpacity: 0.5, weight: 0.5}}).addTo(map); 
+                //console.log(cover);
+
+
+
                 // calculate the nearest point
                 var nearest = turf.nearestPoint(player, dots);
-
+                
+                // For loop to assess if current location is within outer geofence. 
                 for ( let i=0; i<outofBufferB.length; i++) {
                     inside = turf.booleanWithin(player, outofBufferB[i],)
                     if (inside === false) { 
@@ -274,68 +318,130 @@
                 }
                 console.log(nearest)
 
-                // Calculate nearest point function
+                // Calculate nearest point function info
                 // https://stackoverflow.com/questions/56306097/get-nearest-point-from-another-one-in-javascript
+                // nearest point info
+                // https://www.npmjs.com/package/@turf/nearest-point
            
 
-                //For loop to assess if current location is within middle geofence
-                const b_buffers = [b_buff_1, b_buff_2, b_buff_3, b_buff_4];
-                const b_popups = [b_pop_1, b_pop_2, b_pop_3, b_pop_4]; 
 
-                for ( let i=0; i<b_buffers.length; i++) {
-                    if (turf.booleanWithin(player, b_buffers[i])) {
-                        b_popups[i].openPopup();
-                            // create marker object, pass custom icon as option, pass content and options to popup, add to map
-                            //L.marker(e.latlng, {icon: playerIcon}).addTo(map); 
-                            L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
-                    } 
-                }
-                
-                //For loop to assess if current location is within inner geofence.   geof = geofence; in = inner
-                const a_buffers = [a_buff_1,a_buff_2, a_buff_3, a_buff_4];
-                // const innerPopups = [bt_popup1, eb_popup1];
-                const popup_audio = [house_of_rising_sun, gotta_let_you_go, dont_look_back_in_anger, rhinestone_eyes]   
-
-                for ( let i = 0; i < a_buffers.length; i++) {       
-                    if (turf.booleanWithin(player, a_buffers[i])) {					
-                        popup_audio[i].addTo(map);   // .openPopup()
- 
-							L.geoJSON(a_buffers[i], {style:enterstyleIn}).addTo(map); 			
-						}	
-                    }  
-                
-
-            
-                /*/////////////////////////////////////////////////////////////////////////////////////////////////////
-                // SQUARE GRID
-                */////////////////////////////////////////////////////////////////////////////////////////////////////
-
-                // specify units for measurement
-                let gridOptions = {units: 'kilometers'};
-                // get grid as a turf polygon 
-                let grid = turf.squareGrid([-2.275069,53.456925,-2.204545,53.504266], 0.1, gridOptions);   // Manchester City Centre [-2.257649,53.459561,-2.220493,53.494114]
-                // turn grid into geoJson to display on a map
-                let cover = L.geoJson(grid, {style: {color:'#000000', fill: '#89CFF0', fillOpacity: 0.5, weight: 0.5}}).addTo(map); 
-                //console.log(cover);
-                
-                // Loop through each grid square
-                cover.eachLayer(function(layer){
-
-                    // Get grid as a turf polygon
-                    let poly = turf.polygon(layer.feature.geometry.coordinates);
-
-                    // Check if avatar intersects with grid
-                    let ptIntersect = turf.booleanPointInPolygon(player, poly);
-
-                    // Get bounds of the grid and zoom to it
-                    if(ptIntersect === true){
-                        
-                        // Update the layer to ensure that only squares where the player is located are see-through
-                        layer.setStyle({fillOpacity: 0})
+                // A function to set the flag variable to 'false' for every buffer in enterBuffer_b 
+                let enterBuffer_b = [];
+                for (let i=0; i<b_buffers.length; i++){
+                    enterBuffer_b.push(false);}
+				
+                // Function to change the flag value when a player enters a buffer_b
+                function onWithinBuffer(i) {
+                    if(!enterBuffer_b[i])
+                    // update flag
+                    enterBuffer_b[i] = true;
+                    {
+                        for (let i=0; i<b_buffers.length; i++){
+                            if (turf.booleanWithin(player, b_buffers[i])) {
+                                b_popups[i].openPopup();
+                                // create marker object
+                                L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
+                            }
+                        }
                         
                     }
+                    
+                };
 
-                    });
+                // Call the event listener
+                map.addEventListener('click',onWithinBuffer); 
+
+
+
+
+                map.addEventListener('click',exitedBuffer);
+                function exitedBuffer(i){
+                    enterBuffer_b[i] = false;
+                }
+
+                /*
+                // Flag variable
+                let flagB = false;
+
+                // Add all the buffers to the same geojson layer
+                let b_buffers_json = L.geoJson(b_buffers, {style: {color:'#2E86C1', fill: '#2E86C1', fillOpacity: 0.2, weight: 0.5}}).addTo(map);
+                
+                //Loop through buffers using eachLayer
+                b_buffers_json.eachLayer(function(layer){
+                     // Get grid as a turf polygon
+                     let fenceB = turf.polygon(layer.feature.geometry.coordinates);
+                     // Check if avatar intersects with grid
+                     let flagIntersectB = turf.booleanPointInPolygon(player, fenceB);
+
+                        // Get bounds of the grid and zoom to it
+                        if(flagIntersectB === true && flagB === false){
+                            
+                            // For loop to assess if current location is within OUTER BUFFERS
+                            for ( let i=0; i<b_buffers.length; i++) {
+                                if (turf.booleanWithin(player, b_buffers[i])) {
+                                    b_popups[i].openPopup();
+                                        // create marker object, pass custom icon as option, pass content and options to popup, add to map
+                                        //L.marker(e.latlng, {icon: playerIcon}).addTo(map); 
+                                        L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
+                                } 
+                            }
+                        }
+                });
+
+                // Flag variable
+                let flagA = false;
+
+                // Add all the buffers to the same geojson layer
+                let a_buffers_json = L.geoJson(b_buffers, {style: {color:'#2E86C1', fill: '#2E86C1', fillOpacity: 0.2, weight: 0.5}}).addTo(map);
+                
+                //Loop through buffers using eachLayer
+                a_buffers_json.eachLayer(function(layer){
+                     // Get grid as a turf polygon
+                     let fenceA = turf.polygon(layer.feature.geometry.coordinates);
+                     // Check if avatar intersects with grid
+                     let flagIntersectA = turf.booleanPointInPolygon(player, fenceA);
+
+                        // Get bounds of the grid and zoom to it
+                        if(flagIntersectA === true && flagA === false){
+                            
+                            // For loop to assess if current location is within INNER BUFFERS
+                            for ( let i = 0; i < a_buffers.length; i++) {       
+                                if (turf.booleanWithin(player, a_buffers[i])) {					
+                                    popup_audio[i].addTo(map);   // .openPopup()
+
+                                        L.geoJSON(a_buffers[i], {style:enterstyleIn}).addTo(map); 			
+                                    }	
+                                } 
+                        }
+                });
+
+                
+                // Flag variable
+                let flagG = false;
+
+                // Add all the squares in the grid to the same geojson layer
+                let g_buffers_json = L.geoJson(b_buffers, {style: {color:'#2E86C1', fill: '#2E86C1', fillOpacity: 0.2, weight: 0.5}}).addTo(map);
+                
+                //Loop through buffers using eachLayer
+                cover.eachLayer(function(layer){
+                     // Get grid as a turf polygon
+                     let poly = turf.polygon(layer.feature.geometry.coordinates);
+                     // Check if avatar intersects with grid
+                     let ptIntersect = turf.booleanPointInPolygon(player, poly);
+
+                        // Get bounds of the grid and zoom to it
+                        if(ptIntersect === true && flagG === false){
+                                    
+                                    // Update the layer to ensure that only squares where the player is located are see-through
+                                    layer.setStyle({fillOpacity: 0})
+                                    
+                            
+                        }
+                });
+                */
+                
+
+
             }
 
 
@@ -377,8 +483,8 @@
 
             // Story # 2
             const dot_2  = turf.point([-2.226204,53.493350]);     // Christabel = [53.493350,-2.226204]  Rochdale road [53.493023,-2.224488]
-            const a_buff_2 = turf.buffer(dot_2, 0.02, {units:'kilometers',steps:24});
-            const b_buff_2 = turf.buffer(dot_2, 0.05, {units:'kilometers', steps:24});  
+            const a_buff_2 = turf.buffer(dot_2, 0.01, {units:'kilometers',steps:24});
+            const b_buff_2 = turf.buffer(dot_2, 0.03, {units:'kilometers', steps:24});  
             
             var story_2 = L.marker([53.493350,-2.226204], {icon:dot}).bindPopup().addTo(map);  // Christabel
             
@@ -417,11 +523,11 @@
 
 
             // Story # 4 
-            const dot_4  = turf.point([-2.225728,53.467265]);   // false uni location // tunnel entrance [-2.229317,53.492024]
+            const dot_4  = turf.point([-2.226717,53.492470]);   // false uni location [-2.225728,53.467265] // tunnel entrance [-2.229317,53.492024]
             const a_buff_4 = turf.buffer(dot_4, 0.02, {units:'kilometers',steps:24});
             const b_buff_4 = turf.buffer(dot_4, 0.05, {units:'kilometers', steps:24});   
    
-            var story_4 = L.marker([53.467265,-2.225728], {icon:dot}).bindPopup().addTo(map);   //, {icon:oak}   .addTo(map)
+            var story_4 = L.marker([53.492470,-2.226717], {icon:dot}).bindPopup().addTo(map);   //, {icon:oak}   .addTo(map)
            
             L.geoJSON(a_buff_4,{style: innerStyle}).addTo(map);
             L.geoJSON(b_buff_4, {style: midStyle}).addTo(map); 										
