@@ -113,7 +113,7 @@
     <!-- Set background colour --> 
     <body style="background-color: #061529"> 
 
-        <h1 style= 'font-size: 36px; font-family: Arial; color:white; text-align:center; margin-bottom: -10px; margin-left:10px; text-shadow: 1px 1px whitesmoke'> Man_stories. A location-based game to rediscover Manchester </h1>                          
+        <h1 style= 'font-size: 36px; font-family: Arial; color:white; text-align:center; margin-bottom: -10px; margin-left:10px; text-shadow: 1px 1px whitesmoke'> Manc Stories </h1>                          
         
         <!-- A button to switch to the sidebar -->
         <button type= "button" id= "open_slidebar"></button>
@@ -148,11 +148,6 @@
 
             
             // Style the geofences
-            const outerStyle = {      
-                "color": "#2E86C1",
-                "weight": 0,       //2
-                "fillOpacity": 0.1   //0.1
-            };
 
             const midStyle = {
                 "color": "#2E86C1",
@@ -168,7 +163,7 @@
 
             // Style the entered geofences
             const enterstyleIn = { 
-                "color": "black",   // dark blue
+                "color": "yellow",   // dark blue
                 "weight": 3,
                 "fillOpacity": 0.8
             };
@@ -179,11 +174,6 @@
                 "fillOpacity": 0.8
             };
 
-            const enterstyleOut = { 
-                "color": "red",   // light blue
-                "weight": 3,
-                "fillOpacity": 0.8
-            };
 
             /*
             // CREATE A MAP   *************************************************************************************************
@@ -219,7 +209,7 @@
             let location_list = []
             
             // Leaflet function that tracks player's geolocation
-            map.locate({setView: true, maxZoom: 20, watch: true, enableHighAccuracy: true});   //14
+            map.locate({setView: true, maxZoom: 18, watch: true, enableHighAccuracy: true});   //14
 
 
             /*
@@ -253,18 +243,20 @@
                 // Push the person's location to the array
                 location_list.push([e.latlng.lng, e.latlng.lat])
                 
-                console.log(location_list)
                 
-                // Function to connect coords every 100 meters
+                
+                // Function to connect coords every 50 meters
                 for (i=0; i<location_list.length; i++){
-                    if(dist > 100){
-                        var dist = turf.distance(player,location_list[i],{units:'meters'});
+                        var dist = turf.distance(player,location_list[i],{units:'kilometers'});
+                        if(dist > 0.05){
                          // Create a Leaflet polyline layer
-                        let player_movement = L.polyline(location_list)
+                        let player_movement = L.polyline(location_list).addTo(map);
                         // Update the polyline layer
                         player_movement.setLatLngs([e.latlng]).addTo(map);
+                        
                     }
                 }
+                //console.log(location_list)
 
 
                 /*
@@ -285,7 +277,7 @@
                 // INNER buffers list (smaller buffers) 
                 const a_buffers = [a_buff_1,a_buff_2, a_buff_3, a_buff_4];
                 // Audio popups
-                const popup_audio = [house_of_rising_sun, gotta_let_you_go, dont_look_back_in_anger, rhinestone_eyes] 
+                const popup_audio = [rhinestone_eyes, gotta_let_you_go, dont_look_back_in_anger, house_of_rising_sun] 
 
                 // SQUARE GRID
                 // specify units for measurement
@@ -308,7 +300,7 @@
                         let distance = Math.round(turf.distance(player,nearest,{units:'kilometers'})*1000)/1000;  //var
                         // 5 km/hr is an average speed of a person
                         let time_dist =  Math.round(60*distance)/5;             
-						position.bindPopup("<h1 style ='text-align:center; color: #061529'>Yes! There are space invaders hiding here!</h1> <b>The nearest invader is about: " + time_dist.toString()+" minutes away!</b>");
+						position.bindPopup("<h1 style ='text-align:center; color: #061529'>Yes! There are space invaders hiding here!</h1> <b>The nearest invader is about: " + time_dist.toString()+" minutes away!</b>", {maxWidth: 200});
                         
                         //position.bindPopup("<strong>You are here.</strong><br />Keep exploring!.", {maxWidth: 500});
                     }
@@ -316,7 +308,7 @@
                         position.bindPopup("<strong>You very close.</strong><br />Keep exploring!.", {maxWidth: 500});
                     }
                 }
-                console.log(nearest)
+                //console.log(nearest)
 
                 // Calculate nearest point function info
                 // https://stackoverflow.com/questions/56306097/get-nearest-point-from-another-one-in-javascript
@@ -325,22 +317,22 @@
            
 
 
-                // A function to set the flag variable to 'false' for every buffer in enterBuffer_b 
-                let enterBuffer_b = [];
-                for (let i=0; i<b_buffers.length; i++){
-                    enterBuffer_b.push(false);}
+                // A function to set the flag variable to 'false' for every buffer in enterBuffer_a 
+                let enterBuffer_a = [];
+                for (let i=0; i<a_buffers.length; i++){
+                    enterBuffer_a.push(false);}
 				
                 // Function to change the flag value when a player enters a buffer_b
-                function onWithinBuffer(i) {
-                    if(!enterBuffer_b[i])
+                function onWithinBufferA(i) {
+                    if(!enterBuffer_a[i])
                     // update flag
-                    enterBuffer_b[i] = true;
+                    enterBuffer_a[i] = true;
                     {
-                        for (let i=0; i<b_buffers.length; i++){
-                            if (turf.booleanWithin(player, b_buffers[i])) {
-                                b_popups[i].openPopup();
+                        for (let i=0; i<a_buffers.length; i++){
+                            if (turf.booleanWithin(player, a_buffers[i])) {
+                                popup_audio[i].openPopup();
                                 // create marker object
-                                L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
+                                L.geoJSON(a_buffers[i], {style: enterstyleIn}).addTo(map);
                             }
                         }
                         
@@ -348,17 +340,20 @@
                     
                 };
 
+
+                function exitedBufferA(i){
+                    enterBuffer_a[i] = false;
+                };
+
                 // Call the event listener
-                map.addEventListener('click',onWithinBuffer); 
+                map.addEventListener('click',onWithinBufferA);
+                map.addEventListener('click',exitedBufferA);
+                
+                
 
-
-
-
-                map.addEventListener('click',exitedBuffer);
-                function exitedBuffer(i){
-                    enterBuffer_b[i] = false;
-                }
-
+                
+                
+                
                 /*
                 // Flag variable
                 let flagB = false;
@@ -471,7 +466,7 @@
             const story_1 = L.marker([53.487068,-2.228138], {icon:dot}).bindPopup().addTo(map);
     
             // Buffer 'b' popups
-            const b_pop_1_info = ("<h1 style ='text-align:center; color: #263985'> You are very close to Back Turner Street invader!</h1><b> Walk to the corner of Back Turner and Back Thomas streets to catch that sneaky creature.</b> <br> <b> This is how it looks: </b> <iframe src='pics/01_back_turner.jpg' width='300' height='300' frameborder='0' ></iframe>")   //Add content using HTML tags 
+            const b_pop_1_info = ("<h1 style ='text-align:center; color: #263985'> You are very close to Back Turner Street invader!</h1><b> Walk to the corner of Back Turner and Back Thomas streets to catch that sneaky creature.</b> <br> <b> This is how it looks: </b> <iframe src='pics/01_back_turner.jpg' width='100' height='100' frameborder='0' ></iframe>")   //Add content using HTML tags  width='300' height='300'
             const b_pop_1 = story_1.bindPopup(b_pop_1_info, { 
                 maxWidth: 320,				 
                 maxHeight: 400
@@ -492,7 +487,7 @@
             L.geoJSON(b_buff_2, {style: midStyle}).addTo(map); 														 
 
             // Buffer 'b' popups
-            const b_pop_2_info = ("<h1 style ='text-align:center; color: #263985'> You are very close to Oak Street invader!</h1><b> Walk to the corner of Oak and Copperas streets to catch that little one!</b> <br> <b> This is how it looks: </b> <iframe src='pics/02_oak_street.jpg' width='300' height='300' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
+            const b_pop_2_info = ("<h1 style ='text-align:center; color: #263985'> You are very close to Oak Street invader!</h1><b> Walk to the corner of Oak and Copperas streets to catch that little one!</b> <br> <b> This is how it looks: </b> <iframe src='pics/02_oak_street.jpg' width='100' height='100' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
             const b_pop_2 = story_2.bindPopup(b_pop_2_info, { 
                 maxWidth: 320,				 
                 maxHeight: 400
@@ -513,7 +508,7 @@
 
 
             // Buffer 'b' popups
-            const b_pop_3_info = ("<h1 style ='text-align:center; color: #263985'> You are very close to Tib Street invader!</h1><b> Walk to the corner of Tib and Dorsey streets to catch that coloured monster!</b><br> <b> This is how it looks: </b><iframe src='pics/03_tib_street.jpg' width='300' height='300' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
+            const b_pop_3_info = ("<h1 style ='text-align:center; color: #263985'> You are very close to Tib Street invader!</h1><b> Walk to the corner of Tib and Dorsey streets to catch that coloured monster!</b><br> <b> This is how it looks: </b><iframe src='pics/03_tib_street.jpg' width='100' height='100' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
             const b_pop_3 = story_3.bindPopup(b_pop_3_info, { 
                 maxWidth: 320,				 
                 maxHeight: 400
@@ -523,17 +518,17 @@
 
 
             // Story # 4 
-            const dot_4  = turf.point([-2.226717,53.492470]);   // false uni location [-2.225728,53.467265] // tunnel entrance [-2.229317,53.492024]
+            const dot_4  = turf.point([-2.226148,53.492633]);   // false uni location [-2.225728,53.467265] // tunnel entrance [-2.229317,53.492024]
             const a_buff_4 = turf.buffer(dot_4, 0.02, {units:'kilometers',steps:24});
             const b_buff_4 = turf.buffer(dot_4, 0.05, {units:'kilometers', steps:24});   
    
-            var story_4 = L.marker([53.492470,-2.226717], {icon:dot}).bindPopup().addTo(map);   //, {icon:oak}   .addTo(map)
+            var story_4 = L.marker([53.492633,-2.226148], {icon:dot}).bindPopup().addTo(map);   //, {icon:oak}   .addTo(map)
            
             L.geoJSON(a_buff_4,{style: innerStyle}).addTo(map);
             L.geoJSON(b_buff_4, {style: midStyle}).addTo(map); 										
 
             // Buffer 'b' popups
-            const b_pop_4_info = ("<h1 style ='text-align:center; color: #263985'> You are very close to the gayest invader of them all!</h1><b> Wa;l along Canal Street until you reach Princess Street, he is hiding on the bridge! </b><br> <b> This is how it looks: </b><iframe src='pics/12_canal_street.jpg' width='300' height='300' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
+            const b_pop_4_info = ("<h1 style ='text-align:center; color: #263985'> You are very close to the gayest invader of them all!</h1><b> Wa;l along Canal Street until you reach Princess Street, he is hiding on the bridge! </b><br> <b> This is how it looks: </b><iframe src='pics/12_canal_street.jpg' width='100' height='100' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
             const b_pop_4 = story_4.bindPopup(b_pop_4_info, { 
                 maxWidth: 320,				 
                 maxHeight: 400
@@ -555,7 +550,7 @@
 
             const customPopup1 =
             //'<iframe width="360" height="310" src="https://www.youtube.com/embed/glKDhBuoRUs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
-            '<b>Well done! You found Back Turner Invader!</b><br><b>Please listen to a story</b><br><iframe src="media/house_of_rising_sun.mp3" width="300" height="60" frameborder="0" ></iframe>';
+            '<b>Well done! You found Back Turner Invader!</b><br><b>Please listen to a story</b><br><iframe src="media/rhinestone_eyes.mp3" width="300" height="60" frameborder="0" ></iframe>';
             // specify popup options
             const customOptions1 = {
             maxWidth: "auto", // set max-width
@@ -589,7 +584,7 @@
             // create popup contents
             const customPopup4 =
             //'<iframe width="360" height="310" src="https://www.youtube.com/embed/glKDhBuoRUs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
-            '<b>Well done! You found Gay Invader!</b><br><iframe src="rhinestone_eyes.mp3" width="300" height="60" frameborder="0" ></iframe>';
+            '<b>Well done! You found Gay Invader!</b><br><iframe src="media/house_of_rising_sun.mp3" width="300" height="60" frameborder="0" ></iframe>';
             // specify popup options
             const customOptions4 = {
             maxWidth: "auto", // set max-width
