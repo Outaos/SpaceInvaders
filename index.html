@@ -152,18 +152,18 @@
             const midStyle = {
                 "color": "#2E86C1",
                 "weight": 0,
-                "fillOpacity": 0.1
+                "fillOpacity": 0.3
             };
 
             const innerStyle = {
                 "color": "#2E86C1", 
                 "weight": 0, 
-                "fillOpacity":0.1   //0.4 
+                "fillOpacity":0.3   
             };
 
             // Style the entered geofences
             const enterstyleIn = { 
-                "color": "yellow",   // dark blue
+                "color": "yellow",   
                 "weight": 3,
                 "fillOpacity": 0.8
             };
@@ -209,7 +209,7 @@
             let location_list = []
             
             // Leaflet function that tracks player's geolocation
-            map.locate({setView: false, maxZoom: 18, watch: true, enableHighAccuracy: true});   //14 setView: true/false
+            map.locate({setView: false, maxZoom: 18, watch: true, enableHighAccuracy: true});   // setView to false to make a map more managable
 
 
             /*
@@ -250,12 +250,13 @@
                         var dist = turf.distance(player,location_list[i],{units:'kilometers'});
                         if(dist > 0.05){
                          // Create a Leaflet polyline layer
-                        let player_movement = L.polyline(location_list).addTo(map);
+                        let player_movement = L.polyline(location_list);
                         // Update the polyline layer
                         player_movement.setLatLngs([e.latlng]).addTo(map);
                         
                     }
                 }
+
                 //console.log(location_list)
 
 
@@ -285,15 +286,15 @@
                 // get grid as a turf polygon 
                 let grid = turf.squareGrid([-2.275069,53.456925,-2.204545,53.504266], 0.1, gridOptions);   // Manchester City Centre [-2.257649,53.459561,-2.220493,53.494114]
                 // turn grid into geoJson to display on a map
-                // let cover = L.geoJson(grid, {style: {color:'#000000', fill: '#89CFF0', fillOpacity: 0.5, weight: 0.5}}).addTo(map); 
-                //console.log(cover);
+                let cover = L.geoJson(grid, {style: {color:'#000000', fill: '#89CFF0', fillOpacity: 0.2, weight: 0.5}}).addTo(map); 
+                
 
 
 
                 // calculate the nearest point
                 var nearest = turf.nearestPoint(player, dots);
                 
-                // For loop to assess if current location is within outer geofence. 
+                // For loop to assess if current location is outside the buffers and if yes add a popup notifying the user about the time to the target
                 for ( let i=0; i<outofBufferB.length; i++) {
                     inside = turf.booleanWithin(player, outofBufferB[i],)
                     if (inside === false) { 
@@ -301,15 +302,11 @@
                         // 5 km/hr is an average speed of a person
                         let time_dist =  Math.round(60*distance)/5;             
 						position.bindPopup("<h1 style ='text-align:center; color: #061529'>Yes! There are space invaders hiding here!</h1> <b>The nearest invader is about: " + time_dist.toString()+" minutes away!</b>", {maxWidth: 200});
-                        
-                        //position.bindPopup("<strong>You are here.</strong><br />Keep exploring!.", {maxWidth: 500});
-                    }
+                        }
                     else {
                         position.bindPopup("<strong>You very close.</strong><br />Keep exploring!.", {maxWidth: 500});
                     }
                 }
-                //console.log(nearest)
-
                 // Calculate nearest point function info
                 // https://stackoverflow.com/questions/56306097/get-nearest-point-from-another-one-in-javascript
                 // nearest point info
@@ -317,12 +314,46 @@
            
 
 
+                // A function to set the flag variable to 'false' for every buffer in enterBuffer_b 
+                let enterBuffer_b = [];
+                for (let i=0; i<b_buffers.length; i++){
+                    enterBuffer_b.push(false);}
+				
+                // Function to change the flag value when a player enters a buffer_b
+                function onWithinBufferB(i) {
+                    if(!enterBuffer_b[i])
+                    // update flag
+                    enterBuffer_b[i] = true;
+                    {
+                        for (let i=0; i<b_buffers.length; i++){
+                            if (turf.booleanWithin(player, b_buffers[i])) {
+                                b_popups[i].openPopup();
+                                // create marker object
+                                L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
+                            }
+                        }
+                    }
+                };
+                // Call the event listener
+                map.addEventListener('click',onWithinBufferB);
+
+
+
+                function exitedBufferB(i){
+                    enterBuffer_a[i] = false;
+                };
+
+
+                map.addEventListener('click',exitedBufferB);
+
+
+
                 // A function to set the flag variable to 'false' for every buffer in enterBuffer_a 
                 let enterBuffer_a = [];
                 for (let i=0; i<a_buffers.length; i++){
                     enterBuffer_a.push(false);}
 				
-                // Function to change the flag value when a player enters a buffer_b
+                // Function to change the flag value when a player enters a buffer_a
                 function onWithinBufferA(i) {
                     if(!enterBuffer_a[i])
                     // update flag
@@ -350,94 +381,31 @@
                 map.addEventListener('click',exitedBufferA);
                 
                 
+                /*/////////////////////////////////////////////////////////////////////////////////////////////////////
+                // SQUARE GRID
+                */////////////////////////////////////////////////////////////////////////////////////////////////////
 
                 
-                
-                
-                /*
-                // Flag variable
-                let flagB = false;
-
-                // Add all the buffers to the same geojson layer
-                let b_buffers_json = L.geoJson(b_buffers, {style: {color:'#2E86C1', fill: '#2E86C1', fillOpacity: 0.2, weight: 0.5}}).addTo(map);
-                
-                //Loop through buffers using eachLayer
-                b_buffers_json.eachLayer(function(layer){
-                     // Get grid as a turf polygon
-                     let fenceB = turf.polygon(layer.feature.geometry.coordinates);
-                     // Check if avatar intersects with grid
-                     let flagIntersectB = turf.booleanPointInPolygon(player, fenceB);
-
-                        // Get bounds of the grid and zoom to it
-                        if(flagIntersectB === true && flagB === false){
-                            
-                            // For loop to assess if current location is within OUTER BUFFERS
-                            for ( let i=0; i<b_buffers.length; i++) {
-                                if (turf.booleanWithin(player, b_buffers[i])) {
-                                    b_popups[i].openPopup();
-                                        // create marker object, pass custom icon as option, pass content and options to popup, add to map
-                                        //L.marker(e.latlng, {icon: playerIcon}).addTo(map); 
-                                        L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
-                                } 
-                            }
-                        }
-                });
-
-                // Flag variable
-                let flagA = false;
-
-                // Add all the buffers to the same geojson layer
-                let a_buffers_json = L.geoJson(b_buffers, {style: {color:'#2E86C1', fill: '#2E86C1', fillOpacity: 0.2, weight: 0.5}}).addTo(map);
-                
-                //Loop through buffers using eachLayer
-                a_buffers_json.eachLayer(function(layer){
-                     // Get grid as a turf polygon
-                     let fenceA = turf.polygon(layer.feature.geometry.coordinates);
-                     // Check if avatar intersects with grid
-                     let flagIntersectA = turf.booleanPointInPolygon(player, fenceA);
-
-                        // Get bounds of the grid and zoom to it
-                        if(flagIntersectA === true && flagA === false){
-                            
-                            // For loop to assess if current location is within INNER BUFFERS
-                            for ( let i = 0; i < a_buffers.length; i++) {       
-                                if (turf.booleanWithin(player, a_buffers[i])) {					
-                                    popup_audio[i].addTo(map);   // .openPopup()
-
-                                        L.geoJSON(a_buffers[i], {style:enterstyleIn}).addTo(map); 			
-                                    }	
-                                } 
-                        }
-                });
-
-                
-                // Flag variable
-                let flagG = false;
-
-                // Add all the squares in the grid to the same geojson layer
-                let g_buffers_json = L.geoJson(b_buffers, {style: {color:'#2E86C1', fill: '#2E86C1', fillOpacity: 0.2, weight: 0.5}}).addTo(map);
-                
-                //Loop through buffers using eachLayer
+                // Loop through each grid square
                 cover.eachLayer(function(layer){
-                     // Get grid as a turf polygon
-                     let poly = turf.polygon(layer.feature.geometry.coordinates);
-                     // Check if avatar intersects with grid
-                     let ptIntersect = turf.booleanPointInPolygon(player, poly);
 
-                        // Get bounds of the grid and zoom to it
-                        if(ptIntersect === true && flagG === false){
-                                    
-                                    // Update the layer to ensure that only squares where the player is located are see-through
-                                    layer.setStyle({fillOpacity: 0})
-                                    
-                            
-                        }
+                    // Get grid as a turf polygon
+                    let poly = turf.polygon(layer.feature.geometry.coordinates);
+
+                    // Check if avatar intersects with grid
+                    let ptIntersect = turf.booleanPointInPolygon(player, poly);
+
+                    // Get bounds of the grid and zoom to it
+                    if(ptIntersect === true){
+                        
+                        // Update the layer to ensure that only squares where the player is located are see-through
+                        layer.setStyle({fillOpacity: 0})
+                        
+                    }
+
                 });
-                */
-                
 
-
-            }
+            };
 
 
             /*/////////////////////////////////////////////////////////
@@ -594,6 +562,10 @@
 
 
 
+
+
+
+            
 
             //Call location function	
             map.on('locationfound', onLocationFound);   //onLocationFound  getPosition
