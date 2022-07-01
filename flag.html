@@ -66,7 +66,7 @@
 
 			// Buffer style when the user is inside
             const enterstyleMid = { 
-                "color": "#2E86C1",   // blue
+                "color": "#00008B",   // blue
                 "weight": 3,
                 "fillOpacity": 0.3
             };
@@ -96,6 +96,14 @@
 
             // initialise empty array 
             let location_list = []
+            
+
+            // specify units for measurement
+            let gridOptions = {units: 'kilometers'};
+            // get grid as a turf polygon 
+            let grid = turf.squareGrid([-2.275069,53.456925,-2.204545,53.504266], 0.1, gridOptions);   // Manchester City Centre [-2.257649,53.459561,-2.220493,53.494114]
+            // turn grid into geoJson to display on a map
+            let cover = L.geoJson(grid, {style: {color:'#000000', fill: '#89CFF0', fillOpacity: 0.5, weight: 0.5}}).addTo(map); 
             
             /*
             // GEOLOCATION FUNCTION   
@@ -127,11 +135,18 @@
                 location_list.push([e.latlng.lng, e.latlng.lat])
                 
                 console.log(location_list)
-
-                // Create a Leaflet line layer
-                let player_movement = L.polyline(location_list)
-                // Update the polyline layer
-                player_movement.setLatLngs([e.latlng]).addTo(map);
+                
+                
+                for (i=0; i<location_list.length; i++){
+                    if(dist > 100){
+                        var dist = turf.distance(player,location_list[i],{units:'meters'});
+                         // Create a Leaflet polyline layer
+                        let player_movement = L.polyline(location_list)
+                        // Update the polyline layer
+                        player_movement.setLatLngs([e.latlng]).addTo(map);
+                    }
+                }
+               
 
 
 
@@ -145,16 +160,16 @@
 
                 let flag = false;
 
-                let b_buffers_json = L.geoJson(b_buffers, {style: {color:'#000000', fill: '#89CFF0', fillOpacity: 0.5, weight: 0.5}}).addTo(map);
+                let b_buffers_json = L.geoJson(b_buffers, {style: {color:'#2E86C1', fill: '#2E86C1', fillOpacity: 0.2, weight: 0.5}}).addTo(map);
 
                 b_buffers_json.eachLayer(function(layer){
                      // Get grid as a turf polygon
                      let fence = turf.polygon(layer.feature.geometry.coordinates);
                      // Check if avatar intersects with grid
-                    let ptIntersect = turf.booleanPointInPolygon(player, fence);
+                    let flagIntersect = turf.booleanPointInPolygon(player, fence);
 
                         // Get bounds of the grid and zoom to it
-                        if(ptIntersect === true & flag === false){
+                        if(flagIntersect === true && flag === false){
                             //if (){
                                 for (let i=0; i<b_buffers.length; i++){
                                     if (turf.booleanWithin(player, b_buffers[i])) {
@@ -163,11 +178,30 @@
                                         L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
                                     }
                                 }
+
+                                        // Loop through each grid square
+                                        cover.eachLayer(function(layer){
+
+                                            // Get grid as a turf polygon
+                                            let poly = turf.polygon(layer.feature.geometry.coordinates);
+
+                                            // Check if avatar intersects with grid
+                                            let ptIntersect = turf.booleanPointInPolygon(player, poly);
+
+                                            // Get bounds of the grid and zoom to it
+                                            if(ptIntersect === true){
+                                                
+                                                // Update the layer to ensure that only squares where the player is located are see-through
+                                                layer.setStyle({fillOpacity: 0})
+                                                
+                                            }
+
+                                            });
                                 // Update the layer to ensure that only squares where the player is located are see-through
                                 //layer.setStyle({fillOpacity: 1})
                             }
-                        else (ptIntersect === false && flag === true)
-                        flag === false
+                        //else (ptIntersect === false && flag === true)
+                        //flag === false
                         }
 
                     );
