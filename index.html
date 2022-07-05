@@ -157,8 +157,8 @@
 
             // A function to set the flag variable to 'false' for every buffer in enterBuffer_b
             let enterBuffer_b
-            let flag_b = false;
-            let flag_a = false;
+            let flag_b
+            let flag_a
 
             // TESTING: counter variable
             let counter = 0;
@@ -431,6 +431,15 @@
             enterBuffer_b = [];
                 for (let i=0; i<b_buffers.length; i++){
                     enterBuffer_b.push(false);}
+
+            flag_b = [];
+                for (let i=0; i<b_buffers.length; i++){
+                    flag_b.push(false);}
+
+            flag_a = [];
+                for (let i=0; i<a_buffers.length; i++){
+                    flag_a.push(false);}
+
 
 
             // Location error function 
