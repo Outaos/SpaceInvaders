@@ -157,11 +157,6 @@
 
             // A function to set the flag variable to 'false' for every buffer in enterBuffer_b
             let enterBuffer_b
-            let flag_b = false;
-            let flag_a = false;
-
-            // TESTING: counter variable
-            let counter = 0;
             
             // Variable for arrays of buffers
             let dots, outofBufferB, b_buffers, a_buffers;
@@ -171,8 +166,6 @@
 
             // Variable for the square grid
             let cover;
-
-
 
             // Style the geofences
             const midStyle = {
@@ -189,9 +182,9 @@
 
             // Style the entered geofences
             const enterstyleIn = { 
-                "color": "#0E6655",    // green
+                "color": "yellow",   
                 "weight": 3,
-                "fillOpacity": 0.6
+                "fillOpacity": 0.8
             };
 
             const enterstyleMid = { 
@@ -433,14 +426,15 @@
                     enterBuffer_b.push(false);}
 
 
+
+            //Call location function	
+            map.on('locationfound', onLocationFound);   //onLocationFound  getPosition
+
+
             // Location error function 
             function onLocationError(e) {         
                 alert(e.message); 
             } 
-            map.on('locationerror', onLocationError);
-
-            // bind listeners
-            map.on('locationfound', onLocationFound);
             map.on('locationerror', onLocationError);
         };
 
@@ -482,7 +476,6 @@
                 
                 
                 // Function to connect coords every 50 meters
-                /*
                 for (i=0; i<location_list.length; i++){
                         var dist = turf.distance(player,location_list[i],{units:'kilometers'});
                         if(dist > 0.05){
@@ -495,7 +488,6 @@
                 }
 
                 //console.log(location_list)
-                */
 
 
 
@@ -512,7 +504,7 @@
 						position.bindPopup("<h1 style ='text-align:center; color: #061529'>Yes! There are space invaders hiding here!</h1> <b>The nearest invader is about: " + time_dist.toString()+" minutes away!</b>", {maxWidth: 200});
                         }
                     else {
-                        position.bindPopup("<strong>You very close.</strong><br />Keep exploring!. Walking towards the centre of the circle would help.", {maxWidth: 500});
+                        position.bindPopup("<strong>You very close.</strong><br />Keep exploring!.", {maxWidth: 500});
                     }
                 }
                 // Calculate nearest point function info
@@ -521,126 +513,70 @@
                 // https://www.npmjs.com/package/@turf/nearest-point
            
 
-                // BUFFER B
-                for (let i=0; i<b_buffers.length; i++){
-                    
-                    // TESTING: add to the map (and remove previous one to avoid accumulation)
-                    geoJSON = L.geoJSON(b_buffers[i]).addTo(map);
-                    if (geoJSON) map.removeLayer(geoJSON);
 
-                        // TESTING: on the third go, move the point out of the geofence
-                        if (counter == 2 || counter == 3 ){
-                        player = turf.point([e.latlng.lng + 1, e.latlng.lat+1]);
-                    }
-                    
-
-                    // are we in the geofence?
-                    const currentlyWithin_b = turf.booleanWithin(player, b_buffers[i]);
-                    // TESTING: report current point location and "within" status
-                    console.log(player.geometry.coordinates, currentlyWithin_b);
-
-
-                    // if we were NOT within the buffer at the last location
-                    if (!flag_b) {
-
-                        // enter the geofence
-                        if (currentlyWithin_b){
-                            console.log(counter.toString() + ": entered the geofence");
-
-                            /* do something here (popups etc...) */
-                            b_popups[i].openPopup();
-                            // create marker object
-                            L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
-                            
-                            // update the flag
-                            flag_b = true;
-                        
-                        // still outside the geofence
-                        } else {
-                            console.log(counter.toString() + ": still outside the geofence");
+                
+				
+                // Function to change the flag value when a player enters a buffer_b
+                function onWithinBufferB(i) {
+                    if(!enterBuffer_b[i]){
+                        // update flag to true
+                        enterBuffer_b[i] = true;
+                        // check if the user is within the buffer
+                        for (let i=0; i<b_buffers.length; i++){
+                            if (turf.booleanWithin(player, b_buffers[i])) {
+                                b_popups[i].openPopup();
+                                // create marker object
+                                L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
+                            }
                         }
-
-                    // if we WERE within the buffer at the last location
-                    } else {
-
-                        // still inside the geofence
-                        if (currentlyWithin_b) {
-                            console.log(counter.toString() + ": still inside the geofence");
-                        
-                        // leave the geofence
-                        } else {
-                            console.log(counter.toString() + ": exited the geofence");
-                        }
-
-                        // update the flag
-                        flag_b = currentlyWithin_b;
                     }
-                    
-                    // TESTING: increment counter
-                    counter++;
-
-                    // TESTING: call onLocationFound again up to 3 times
-                    if (counter < 5) onLocationFound(e);
+                };
+                // Call the event listener
+                map.addEventListener('click',onWithinBufferB);
 
 
+
+                function exitedBufferB(i){
+                    enterBuffer_a[i] = false;
                 };
 
 
-                // BUFFER A
+                map.addEventListener('click',exitedBufferB);
+
+
+
+                // A function to set the flag variable to 'false' for every buffer in enterBuffer_a 
+                let enterBuffer_a = [];
                 for (let i=0; i<a_buffers.length; i++){
-                    
-                    // TESTING: add to the map (and remove previous one to avoid accumulation)
-                    geoJSON = L.geoJSON(a_buffers[i]).addTo(map);
-                    if (geoJSON) map.removeLayer(geoJSON);
-                    
-
-                    // are we in the geofence?
-                    const currentlyWithin_a = turf.booleanWithin(player, a_buffers[i]);
-
-                    // if we were NOT within the buffer at the last location
-                    if (!flag_a) {
-
-                        // enter the geofence
-                        if (currentlyWithin_a){
-
-                            /* do something here (popups etc...) */
-                            // create marker object
-                            L.geoJSON(a_buffers[i], {style: enterstyleIn}).addTo(map);
-                            // update the flag
-                            flag_a = true;
-                        
-                        // still outside the geofence
-                        } else {
-                            //console.log(counter.toString() + ": still outside the geofence");
+                    enterBuffer_a.push(false);}
+				
+                // Function to change the flag value when a player enters a buffer_a
+                function onWithinBufferA(i) {
+                    if(!enterBuffer_a[i]){
+                        // update flag to true
+                        enterBuffer_a[i] = true;
+ 
+                        // check if the user is within the buffer
+                        for (let i=0; i<a_buffers.length; i++){
+                            if (turf.booleanWithin(player, a_buffers[i])) {
+                                popup_audio[i].openPopup();
+                                // create marker object
+                                L.geoJSON(a_buffers[i], {style: enterstyleIn}).addTo(map);
+                            }
                         }
-
-                    // if we WERE within the buffer at the last location
-                    } else {
-
-                        // still inside the geofence
-                        if (currentlyWithin_a) {
-                            //console.log(counter.toString() + ": still inside the geofence");
                         
-                        // leave the geofence
-                        } else {
-                            //console.log(counter.toString() + ": exited the geofence");
-                        }
-
-                        // update the flag
-                        flag_a = currentlyWithin_a;
                     }
-
-
+                    
                 };
 
-                for ( let i = 0; i < a_buffers.length; i++) {       
-                    if (turf.booleanWithin(player, a_buffers[i])) {					
-                        popup_audio[i].addTo(map);   // .openPopup()		
-						}	
-                    };
 
+                function exitedBufferA(i){
+                    enterBuffer_a[i] = false;
+                };
 
-
+                // Call the event listener
+                map.addEventListener('click',onWithinBufferA);
+                map.addEventListener('click',exitedBufferA);
                 
                 
                 /*/////////////////////////////////////////////////////////////////////////////////////////////////////

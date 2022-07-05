@@ -51,11 +51,16 @@
 		
        // Set location variable to 'null' to account for no info when user just enters the game
 	   let position = null;  
-            
-		// Create alert message with basic information about the game
-		alert("Welcome to Man_stories!\n\n\This location-based experience aims to help you explore the city by searching for hidden multimedia stories in the real-world urban environment. To continue please enable location on your device.\n\nPlease click on the menu icon in the upper right corner for further instructions.");      
-		// Create alert message with basic information about the game
-		//alert("Welcome to Man_stories!\n\n\This game aims to help you explore the city by searching for hidden multimedia stories in the real-world urban environment. To continue please enable location on your device.\n\nFurther instructions are in the menu.\n\n Have fun!");      
+
+       // flag
+        let flag = false;
+
+        // TESTING: counter variable
+        let counter = 0;
+
+        // holds the geoJSON layer for the geofence
+        let geoJSON;
+              
 
 			// Buffer style when the user is not inside
             const midStyle = {
@@ -66,9 +71,9 @@
 
 			// Buffer style when the user is inside
             const enterstyleMid = { 
-                "color": "#00008B",   // blue
+                "color": "#0E6655",   // green
                 "weight": 3,
-                "fillOpacity": 0.3
+                "fillOpacity": 0.5
             };
 
 
@@ -94,10 +99,8 @@
             // Leaflet function that tracks player's geolocation
             map.locate({setView: true, maxZoom: 20, watch: true, enableHighAccuracy: true});   //14
 
-            // initialise empty array 
-            let location_list = []
-            
-            
+
+          
             /*
             // GEOLOCATION FUNCTION   
             */
@@ -122,23 +125,6 @@
                 } else { 
                     position.setLatLng(e.latlng); 
                 }
-
-
-                // Push the person's location to the array
-                location_list.push([e.latlng.lng, e.latlng.lat])
-                
-                console.log(location_list)
-                
-                
-                for (i=0; i<location_list.length; i++){
-                    if(dist > 100){
-                        var dist = turf.distance(player,location_list[i],{units:'meters'});
-                         // Create a Leaflet polyline layer
-                        let player_movement = L.polyline(location_list)
-                        // Update the polyline layer
-                        player_movement.setLatLngs([e.latlng]).addTo(map);
-                    }
-                }
                
 
 
@@ -150,9 +136,106 @@
                 const b_buffers = [b_buff_1, b_buff_2, b_buff_3, b_buff_4];
                 // List of type 'B' popups --> image and a street name
                 const b_popups = [b_pop_1, b_pop_2, b_pop_3, b_pop_4]; 
-                
-                // Flag variable
-                let flag = false;
+
+
+
+
+                for (let i=0; i<b_buffers.length; i++){
+                    
+                    // TESTING: add to the map (and remove previous one to avoid accumulation)
+                    if (geoJSON) map.removeLayer(geoJSON);
+                    geoJSON = L.geoJSON(b_buffers[i]).addTo(map);
+
+                    // TESTING: on the third go, move the point out of the geofence
+                    if (counter == 2 || counter == 3 ){
+                        player = turf.point([e.latlng.lng + 1, e.latlng.lat+1]);
+                    }
+
+                    // are we in the geofence?
+                    const currentlyWithin = turf.booleanWithin(player, b_buffers[i]);
+
+                    // TESTING: report current point location and "within" status
+                    console.log(player.geometry.coordinates, currentlyWithin);
+
+
+
+                    // if we were NOT within the buffer at the last location
+                    if (!flag) {
+
+                        // enter the geofence
+                        if (currentlyWithin){
+                            console.log(counter.toString() + ": entered the geofence");
+
+                            /* do something here (popups etc...) */
+                            b_popups[i].openPopup();
+                            // create marker object
+                            L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
+                            
+                            // update the flag
+                            flag = true;
+                        
+                        // still outside the geofence
+                        } else {
+                            console.log(counter.toString() + ": still outside the geofence");
+                        }
+
+                    // if we WERE within the buffer at the last location
+                    } else {
+
+                        // still inside the geofence
+                        if (currentlyWithin) {
+                            console.log(counter.toString() + ": still inside the geofence");
+                        
+                        // leave the geofence
+                        } else {
+                            console.log(counter.toString() + ": exited the geofence");
+                        }
+
+                        // update the flag
+                        flag = currentlyWithin;
+                    }
+
+
+                    // TESTING: increment counter
+                    counter++;
+
+                    // TESTING: call onLocationFound again up to 3 times
+                    if (counter < 5) onLocationFound(e);
+
+
+
+                }
+
+
+            };
+
+
+            /**
+             * Listener for location error
+             */
+             function onLocationError(e) {
+                alert(e.message);
+            }
+
+            // bind listeners
+            map.on('locationfound', onLocationFound);
+            map.on('locationerror', onLocationError);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                /*
                 // Add all the buffers to the same geojson layer
                 let b_buffers_json = L.geoJson(b_buffers, {style: {color:'#2E86C1', fill: '#2E86C1', fillOpacity: 0.2, weight: 0.5}}).addTo(map);
                 
@@ -181,10 +264,11 @@
                         //else (ptIntersect === false && flag === true)
                         //flag === false
                         }
-
                     );
+                    */
+                    
 
-			};
+			
 
 
 
