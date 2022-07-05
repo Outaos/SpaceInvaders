@@ -550,7 +550,7 @@
 
 
                     // if we were NOT within the buffer at the last location
-                    if (!flag_b) {
+                    if (!flag_b[i]) {
 
                         // enter the geofence
                         if (currentlyWithin_b){
@@ -562,7 +562,7 @@
                             L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
                             
                             // update the flag
-                            flag_b = true;
+                            flag_b[i] = true;
                         
                         // still outside the geofence
                         } else {
@@ -582,7 +582,7 @@
                         }
 
                         // update the flag
-                        flag_b = currentlyWithin_b;
+                        flag_b[i] = currentlyWithin_b;
                     }
                     
                     // TESTING: increment counter
@@ -607,7 +607,7 @@
                     const currentlyWithin_a = turf.booleanWithin(player, a_buffers[i]);
 
                     // if we were NOT within the buffer at the last location
-                    if (!flag_a) {
+                    if (!flag_a[i]) {
 
                         // enter the geofence
                         if (currentlyWithin_a){
@@ -616,7 +616,7 @@
                             // create marker object
                             L.geoJSON(a_buffers[i], {style: enterstyleIn}).addTo(map);
                             // update the flag
-                            flag_a = true;
+                            flag_a[i] = true;
                         
                         // still outside the geofence
                         } else {
@@ -636,7 +636,7 @@
                         }
 
                         // update the flag
-                        flag_a = currentlyWithin_a;
+                        flag_a[i] = currentlyWithin_a;
                     }
 
 
