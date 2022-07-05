@@ -167,7 +167,7 @@
             let dots, outofBufferB, b_buffers, a_buffers;
 
             // variables for the arrays of popups
-            let b_popups, popup_audio
+            let b_popups, a_popups, popup_audio
 
             // Variable for the square grid
             let cover;
@@ -215,7 +215,7 @@
             // Map tiles 
             map = L.map('map');
             const mapCentre = L.latLng(53.4808,-2.2426);
-            map.setView(mapCentre,13); //13
+            map.setView(mapCentre,16); //13
             // Change tiles
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 							attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -241,7 +241,7 @@
             // TRACK PLAYER'S LOCATION  *************************************************************************************************
             */
             // Leaflet function that tracks player's geolocation
-            map.locate({setView: false, maxZoom: 18, watch: true, enableHighAccuracy: true});   // setView to false to make a map more managable
+            map.locate({setView: false, maxZoom: 16, watch: true, enableHighAccuracy: true});   // setView to false to make a map more managable
 
 
             /*/////////////////////////////////////////////////////////
@@ -276,6 +276,13 @@
                 maxHeight: 400
             });
 
+            // Buffer 'b' popups
+            const a_pop_1_info = ("<h1 style ='text-align:center; color: #263985'> You are very close to Back Turner Street invader!</h1><b> Walk to the corner of Back Turner and Back Thomas streets to catch that sneaky creature.</b> <br> <b> This is how it looks: </b> <iframe src='pics/01_back_turner.jpg' width='300' height='300' frameborder='0' ></iframe>")   //Add content using HTML tags  width='300' height='300'
+            const a_pop_1 = story_1.bindPopup(a_pop_1_info, { 
+                maxWidth: 320,				 
+                maxHeight: 400
+            });
+
             story_1.off('click'); 
 
 
@@ -293,6 +300,13 @@
             // Buffer 'b' popups
             const b_pop_2_info = ("<h1 style ='text-align:center; color: #263985'> You are very close to Oak Street invader!</h1><b> Walk to the corner of Oak and Copperas streets to catch that little one!</b> <br> <b> This is how it looks: </b> <iframe src='pics/02_oak_street.jpg' width='300' height='300' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
             const b_pop_2 = story_2.bindPopup(b_pop_2_info, { 
+                maxWidth: 320,				 
+                maxHeight: 400
+            });
+
+            // Buffer 'a' popups
+            const a_pop_2_info = ("<h1 style ='text-align:center; color: #263985'> Well done. You found Oak Street invader!</h1><br> <iframe src='pics/02_oak_street.jpg' width='300' height='300' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
+            const a_pop_2 = story_2.bindPopup(a_pop_2_info, { 
                 maxWidth: 320,				 
                 maxHeight: 400
             });
@@ -318,6 +332,13 @@
                 maxHeight: 400
             });
 
+            // Buffer 'a' popups
+            const a_pop_3_info = ("<h1 style ='text-align:center; color: #263985'> You are very close to Tib Street invader!</h1><b> Walk to the corner of Tib and Dorsey streets to catch that coloured monster!</b><br> <b> This is how it looks: </b><iframe src='pics/03_tib_street.jpg' width='300' height='300' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
+            const a_pop_3 = story_3.bindPopup(a_pop_3_info, { 
+                maxWidth: 320,				 
+                maxHeight: 400
+            });
+
             story_3.off('click'); 
 
 
@@ -334,6 +355,13 @@
             // Buffer 'b' popups
             const b_pop_4_info = ("<h1 style ='text-align:center; color: #263985'> You are very close to the gayest invader of them all!</h1><b> Walk along Canal Street until you reach Princess Street, he is hiding on the bridge! </b><br> <b> This is how it looks: </b><iframe src='pics/12_canal_street.jpg' width='300' height='300' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
             const b_pop_4 = story_4.bindPopup(b_pop_4_info, { 
+                maxWidth: 320,				 
+                maxHeight: 400
+            });
+
+            // Buffer 'a' popups
+            const a_pop_4_info = ("<h1 style ='text-align:center; color: #263985'> Well done! You found the gayest invader of them all!</h1> <br> <iframe src='pics/12_canal_street.jpg' width='300' height='300' frameborder='0' ></iframe>")   //<iframe src='pics/02_oak_street_rs.jpg' width='300' height='300' frameborder='0' ></iframe>
+            const a_pop_4 = story_4.bindPopup(a_pop_4_info, { 
                 maxWidth: 320,				 
                 maxHeight: 400
             });
@@ -411,6 +439,8 @@
             b_buffers = [b_buff_1, b_buff_2, b_buff_3, b_buff_4];   
             // OUTER buffers' popups
             b_popups = [b_pop_1, b_pop_2, b_pop_3, b_pop_4]; 
+            // INNER buffers' popups
+            a_popups = [a_pop_1, a_pop_2, a_pop_3, a_pop_4]; 
 
             // INNER buffers list (smaller buffers) 
             a_buffers = [a_buff_1,a_buff_2, a_buff_3, a_buff_4];
@@ -451,6 +481,97 @@
             // bind listeners
             map.on('locationfound', onLocationFound);
             map.on('locationerror', onLocationError);
+
+                        /////////////////////////////////////////////////////////////////////////////////////////////////////
+            // LEGEND WITH ALL HIDDEN INVADERS
+            
+            //Legend
+            L.control.Legend({           
+                    position: "bottomright", 
+                    collapsed: true,      
+                    legends: [{ 
+                        label : "Back Turner Man_1", 
+                        type: "image", 
+                        url: "pics/man_1_back_turner.jpg",  
+                    },{ 
+                        label: "Oak Man_2", 
+                        type: "image", 
+                        url: "pics/man_2_oak.jpg", 
+                    },{ 
+                        label: "Tib Man_3", 
+                        type: "image", 
+                        url: "pics/man_3_tib.jpg", 
+                    },{ 
+                        label: "Canal Man_12", 
+                        type: "image", 
+                        url: "pics/man_12_canal.jpg",
+                    },{ 
+                        label: "Oxford Man_5", 
+                        type: "image", 
+                        url: "pics/man_5.jpg", 
+                    },{ 
+                        label: "Dantzic Man_8", 
+                        type: "image", 
+                        url: "pics/man_8.jpg", 
+                    },{ 
+                        label: "Back Pic. Man_10", 
+                        type: "image", 
+                        url: "pics/man_10.jpg", 
+                    },{ 
+                        label: "Short Man_13", 
+                        type: "image", 
+                        url: "pics/man_13.jpg", 
+                    },{ 
+                        label: "China Man_14", 
+                        type: "image", 
+                        url: "pics/man_14.jpg", 
+                    },{ 
+                        label: "Cooper Man_15", 
+                        type: "image", 
+                        url: "pics/man_15.jpg", 
+                    },{ 
+                        label: "Man_16", 
+                        type: "image", 
+                        url: "pics/man_16.jpg", 
+                    },{ 
+                        label: "Balloon Man_18", 
+                        type: "image", 
+                        url: "pics/man_18.jpg", 
+                    },{ 
+                        label: "Catlow Man_19", 
+                        type: "image", 
+                        url: "pics/man_19.jpg", 
+                    },{ 
+                        label: "Dale Man_20", 
+                        type: "image", 
+                        url: "pics/man_20_dale.jpg", 
+                    },{ 
+                        label: "Hart Man_23", 
+                        type: "image", 
+                        url: "pics/man_23.jpg", 
+                    },{ 
+                        label: "Portland Man_24", 
+                        type: "image", 
+                        url: "pics/man_24.jpg", 
+                    },{ 
+                        label: "Castle Man_27", 
+                        type: "image", 
+                        url: "pics/man_27.jpg", 
+                    },{ 
+                        label: "Hewitt Man_28", 
+                        type: "image", 
+                        url: "pics/man_28.jpg", 
+                    },{ 
+                        label: "Albion Man_29", 
+                        type: "image", 
+                        url: "pics/man_29.jpg", 
+                    },{ 
+                        label: "Pic. Gardens Man_30", 
+                        type: "image", 
+                        url: "pics/man_30_pic_gardens.jpg", 
+                    },]
+                }).addTo(map);
+                //////////////////////////////////////////////////////////////////////////////////////////////////////
         };
 
 
@@ -545,8 +666,6 @@
 
                     // are we in the geofence?
                     const currentlyWithin_b = turf.booleanWithin(player, b_buffers[i]);
-                    // TESTING: report current point location and "within" status
-                    console.log(player.geometry.coordinates, currentlyWithin_b);
 
 
                     // if we were NOT within the buffer at the last location
@@ -554,8 +673,7 @@
 
                         // enter the geofence
                         if (currentlyWithin_b){
-                            console.log(counter.toString() + ": entered the geofence");
-
+                        
                             /* do something here (popups etc...) */
                             b_popups[i].openPopup();
                             // create marker object
@@ -565,21 +683,10 @@
                             flag_b[i] = true;
                         
                         // still outside the geofence
-                        } else {
-                            console.log(counter.toString() + ": still outside the geofence");
-                        }
+                        }; 
 
                     // if we WERE within the buffer at the last location
                     } else {
-
-                        // still inside the geofence
-                        if (currentlyWithin_b) {
-                            console.log(counter.toString() + ": still inside the geofence");
-                        
-                        // leave the geofence
-                        } else {
-                            console.log(counter.toString() + ": exited the geofence");
-                        }
 
                         // update the flag
                         flag_b[i] = currentlyWithin_b;
@@ -613,32 +720,21 @@
                         if (currentlyWithin_a){
 
                             /* do something here (popups etc...) */
+                            a_popups[i].openPopup();
                             // create marker object
                             L.geoJSON(a_buffers[i], {style: enterstyleIn}).addTo(map);
                             // update the flag
                             flag_a[i] = true;
                         
                         // still outside the geofence
-                        } else {
-                            //console.log(counter.toString() + ": still outside the geofence");
-                        }
+                        }; 
 
                     // if we WERE within the buffer at the last location
                     } else {
 
-                        // still inside the geofence
-                        if (currentlyWithin_a) {
-                            //console.log(counter.toString() + ": still inside the geofence");
-                        
-                        // leave the geofence
-                        } else {
-                            //console.log(counter.toString() + ": exited the geofence");
-                        }
-
                         // update the flag
                         flag_a[i] = currentlyWithin_a;
                     }
-
 
                 };
 
@@ -691,96 +787,7 @@
             
 
 
-            /*/////////////////////////////////////////////////////////////////////////////////////////////////////
-            // LEGEND WITH ALL HIDDEN INVADERS
-            
-            //Legend
-                L.control.Legend({           
-                    position: "bottomright", 
-                    collapsed: true,      
-                    legends: [{ 
-                        label : "Back Turner Man_1", 
-                        type: "image", 
-                        url: "pics/man_1_back_turner.jpg",  
-                    },{ 
-                        label: "Oak Man_2", 
-                        type: "image", 
-                        url: "pics/man_2_oak.jpg", 
-                    },{ 
-                        label: "Tib Man_3", 
-                        type: "image", 
-                        url: "pics/man_3_tib.jpg", 
-                    },{ 
-                        label: "Canal Man_12", 
-                        type: "image", 
-                        url: "pics/man_12_canal.jpg",
-                    },{ 
-                        label: "Oxford Man_5", 
-                        type: "image", 
-                        url: "pics/man_5.jpg", 
-                    },{ 
-                        label: "Dantzic Man_8", 
-                        type: "image", 
-                        url: "pics/man_8.jpg", 
-                    },{ 
-                        label: "Back Pic. Man_10", 
-                        type: "image", 
-                        url: "pics/man_10.jpg", 
-                    },{ 
-                        label: "Short Man_13", 
-                        type: "image", 
-                        url: "pics/man_13.jpg", 
-                    },{ 
-                        label: "China Man_14", 
-                        type: "image", 
-                        url: "pics/man_14.jpg", 
-                    },{ 
-                        label: "Cooper Man_15", 
-                        type: "image", 
-                        url: "pics/man_15.jpg", 
-                    },{ 
-                        label: "Man_16", 
-                        type: "image", 
-                        url: "pics/man_16.jpg", 
-                    },{ 
-                        label: "Balloon Man_18", 
-                        type: "image", 
-                        url: "pics/man_18.jpg", 
-                    },{ 
-                        label: "Catlow Man_19", 
-                        type: "image", 
-                        url: "pics/man_19.jpg", 
-                    },{ 
-                        label: "Dale Man_20", 
-                        type: "image", 
-                        url: "pics/man_20_dale.jpg", 
-                    },{ 
-                        label: "Hart Man_23", 
-                        type: "image", 
-                        url: "pics/man_23.jpg", 
-                    },{ 
-                        label: "Portland Man_24", 
-                        type: "image", 
-                        url: "pics/man_24.jpg", 
-                    },{ 
-                        label: "Castle Man_27", 
-                        type: "image", 
-                        url: "pics/man_27.jpg", 
-                    },{ 
-                        label: "Hewitt Man_28", 
-                        type: "image", 
-                        url: "pics/man_28.jpg", 
-                    },{ 
-                        label: "Albion Man_29", 
-                        type: "image", 
-                        url: "pics/man_29.jpg", 
-                    },{ 
-                        label: "Pic. Gardens Man_30", 
-                        type: "image", 
-                        url: "pics/man_30_pic_gardens.jpg", 
-                    },]
-                }).addTo(map);
-                *///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
             /*/////////////////////////////////////////////////////////////////////////////////////////////////////
