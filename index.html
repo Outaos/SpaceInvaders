@@ -160,8 +160,6 @@
             let flag_b
             let flag_a
 
-            // TESTING: counter variable
-            let counter = 0;
             
             // Variable for arrays of buffers
             let dots, outofBufferB, b_buffers, a_buffers;
@@ -657,11 +655,6 @@
                     // TESTING: add to the map (and remove previous one to avoid accumulation)
                     geoJSON = L.geoJSON(b_buffers[i]).addTo(map);
                     if (geoJSON) map.removeLayer(geoJSON);
-
-                        // TESTING: on the third go, move the point out of the geofence
-                        if (counter == 2 || counter == 3 ){
-                        player = turf.point([e.latlng.lng + 1, e.latlng.lat+1]);
-                    }
                     
 
                     // are we in the geofence?
@@ -692,12 +685,6 @@
                         flag_b[i] = currentlyWithin_b;
                     }
                     
-                    // TESTING: increment counter
-                    counter++;
-
-                    // TESTING: call onLocationFound again up to 3 times
-                    if (counter < 5) onLocationFound(e);
-
 
                 };
 
