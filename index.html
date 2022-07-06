@@ -153,7 +153,7 @@
             let position = null; 
 
             // initialise empty array for updated coords
-            let location_list = []
+            let locationList = []
 
             // A function to set the flag variable to 'false' for every buffer in enterBuffer_b
             let enterBuffer_b
@@ -605,25 +605,25 @@
                 }
 
                 // Push the person's location to the array
-                location_list.push([e.latlng.lng, e.latlng.lat])
-                
-                
-                
-                // Function to connect coords every 50 meters
-                /*
-                for (i=0; i<location_list.length; i++){
-                        var dist = turf.distance(player,location_list[i],{units:'kilometers'});
-                        if(dist > 0.05){
-                         // Create a Leaflet polyline layer
-                        let player_movement = L.polyline(location_list);
-                        // Update the polyline layer
-                        player_movement.setLatLngs([e.latlng]).addTo(map);
-                        
-                    }
-                }
+                locationList.push([e.latlng.lng, e.latlng.lat]) 
+                console.log(locationList)
 
-                //console.log(location_list)
-                */
+                // Function to connect coords every 50 meters
+                for (i=0; i<locationList.length; i++){
+                let myLine = turf.lineString([locationList[0], locationList[i]], {name:"user track"});
+                
+                let geoLine = L.geoJson(myLine, {style: {
+                                                weight: 0.5,
+                                                color: 'red',
+                                                fillOpacity: 1,
+                                                fillColor: 'lightgrey',
+                                            }}).addTo(map);                // {type: "Point", coordinates: [13.42493130000003, 52.50074619999999 ]}
+                console.log(geoLine)
+                const options = {tolerance: 0.000833, highQuality: false}; 
+                let simplified = turf.simplify(geoLine, options).addTo(map);     // Uncaught Error: unknown GeoJSON type
+                };
+                
+                
 
 
 
@@ -809,25 +809,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-             
 
 
         </script>
