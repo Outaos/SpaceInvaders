@@ -165,10 +165,12 @@
             let dots, outofBufferB, b_buffers, a_buffers;
 
             // variables for the arrays of popups
-            let b_popups, a_popups, popup_audio
+            let b_popups, popup_audio
 
             // Variable for the square grid
             let cover;
+
+            let geoLine;
 
 
 
@@ -613,10 +615,13 @@
                 // let myLineJson = L.geoJson(myLine);
                 // Simplify the line using a turf function 
                 const options = {tolerance: 0.000833, highQuality: false}; 
-                let simplified = turf.simplify(myLine, options);
+                //let simplified = turf.simplify(myLine, options);
 
+                if (geoLine) {
+                    geoLine.remove();
+                    };
                 // add a Json line to the map
-                let geoLine = L.geoJson(simplified, {style: {
+                geoLine = L.geoJson(myLine, {style: {       // simplified
                                                 weight: 0.5,
                                                 color: 'red',
                                                 fillOpacity: 1,
