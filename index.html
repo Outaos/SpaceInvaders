@@ -605,9 +605,25 @@
                 }
 
                 // Push the person's location to the array
-                locationList.push([e.latlng.lng, e.latlng.lat]) 
-                console.log(locationList)
+                locationList.push([e.latlng.lng, e.latlng.lat]);  // [e.latlng.lng, e.latlng.lat]
+                console.log(locationList);
 
+                // Create a lineString
+                let myLine = turf.lineString(locationList, {name:"user track"});   // Array.from(coordsArray) // Uncaught Error: coordinates must be an array of two or more positions
+                // let myLineJson = L.geoJson(myLine);
+                // Simplify the line using a turf function 
+                const options = {tolerance: 0.000833, highQuality: false}; 
+                let simplified = turf.simplify(myLine, options);
+
+                // add a Json line to the map
+                let geoLine = L.geoJson(simplified, {style: {
+                                                weight: 0.5,
+                                                color: 'red',
+                                                fillOpacity: 1,
+                                                fillColor: 'lightgrey',
+                                            }}).addTo(map);
+
+                /*                            
                 // Function to connect coords every 50 meters
                 for (i=0; i<locationList.length; i++){
                 let myLine = turf.lineString([locationList[0], locationList[i]], {name:"user track"});
@@ -622,6 +638,7 @@
                 const options = {tolerance: 0.000833, highQuality: false}; 
                 let simplified = turf.simplify(geoLine, options).addTo(map);     // Uncaught Error: unknown GeoJSON type
                 };
+                */
                 
                 
 
@@ -667,7 +684,7 @@
                         // enter the geofence
                         if (currentlyWithin_b){
                         
-                            /* do something here (popups etc...) */
+                            // Open a popup
                             b_popups[i].openPopup();
                             // create marker object
                             L.geoJSON(b_buffers[i], {style: enterstyleMid}).addTo(map);
@@ -707,7 +724,7 @@
                         if (currentlyWithin_a){
 
                             /* do something here (popups etc...) */
-                            a_popups[i].openPopup();
+                            // a_popups[i].openPopup();
                             // create marker object
                             L.geoJSON(a_buffers[i], {style: enterstyleIn}).addTo(map);
                             // update the flag
