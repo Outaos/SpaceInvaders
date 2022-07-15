@@ -614,7 +614,7 @@
                 let myLine = turf.lineString(locationList, {name:"user track"});   // Array.from(coordsArray) // Uncaught Error: coordinates must be an array of two or more positions
                 // let myLineJson = L.geoJson(myLine);
                 // Simplify the line using a turf function 
-                const options = {tolerance: 0.000833, highQuality: false}; 
+                const options = {tolerance: 0.000001, highQuality: false}; //0.000833
                 let simplified = turf.simplify(myLine, options);
 
                 if (geoLine) {
