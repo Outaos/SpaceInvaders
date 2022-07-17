@@ -125,7 +125,10 @@
 		<div id='map'></div>
 
         <!-- Create a sidebar --> 
-        <div id="sidebar_settings">                  
+        <div id="sidebar_settings">
+            <h1 style="background-color:white ; color:#061529; text-shadow: 1px 1px white; padding-left:5px;">Invaders discovered:</h1> 				<!-- currently contains miscellaneous stuff --> 
+			<p id="score" style="text-align: center;"></p>
+			<hr>                  
 			<h1 style="background-color: white ;text-shadow: 1px 1px #061529; padding-right:5px;"> Gameflow </h1> 
 			<p> 1. Walk around central Manchester to discover stories. <br> 2. Touch the 'feet' icon to see how far you are from the nearest story. <br> 3. Once you enter an invisible geofence the hint will popup and the geofence will appear on the map. <br> 4. After listening to the story you are welcome to rate it. <br> 5. Dare to add you own stories to the game. <br> 6. Share your stories with friends!</p> 
 			<hr>
@@ -151,6 +154,9 @@
             let map;
             // Set location variable to 'null' to account for no info when user just enters the game
             let position = null; 
+
+            //Counter for score 					
+			let geofence_tracker = [0,0,0,0,0,0];  
 
             // initialise empty array for updated coords
             let locationList = []
@@ -754,11 +760,15 @@
 
                 for ( let i = 0; i < a_buffers.length; i++) {       
                     if (turf.booleanWithin(player, a_buffers[i])) {					
-                        popup_audio[i].addTo(map);   // .openPopup()		
-						}	
+                        popup_audio[i].addTo(map);   // .openPopup()
+                        if (geofence_tracker [i] == 0) {
+                            geofence_tracker[i] =1;
+                            points = 0;
+                            for(let j in geofence_tracker) {points += geofence_tracker[j]};
+                            document.getElementById("score").innerHTML = points;
+                            };		
+						};	
                     };
-
-
 
                 
                 
